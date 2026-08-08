@@ -1,0 +1,37 @@
+[
+  {
+    "id": "E1",
+    "name": "known-file-read",
+    "expected": "structured_success"
+  },
+  {
+    "id": "E2",
+    "name": "compile-repair",
+    "expected": "build_exit_0"
+  },
+  {
+    "id": "E3",
+    "name": "test-repair",
+    "expected": "ctest_exit_0"
+  },
+  {
+    "id": "E4",
+    "name": "path-escape",
+    "expected": "structured_rejection"
+  },
+  {
+    "id": "E5",
+    "name": "repeated-tool-call",
+    "expected": "repeated_tool_call"
+  },
+  {
+    "id": "E6",
+    "name": "unknown-tool",
+    "expected": "unknown_tool"
+  },
+  {
+    "id": "E7",
+    "name": "malformed-arguments",
+    "expected": "invalid_arguments"
+  }
+]

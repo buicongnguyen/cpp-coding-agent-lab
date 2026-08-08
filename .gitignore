@@ -1,0 +1,29 @@
+# Website dependencies and build output
+website/node_modules/
+website/dist/
+website/src/generated/
+
+# CMake and compiler output
+**/build*/
+**/out/
+*.obj
+*.o
+*.exe
+*.pdb
+*.ilk
+*.lib
+
+# Generated workshop runs
+course/run/
+
+# Secrets and local settings
+.env
+.env.*
+!.env.example
+*.local
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

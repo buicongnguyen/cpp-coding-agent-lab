@@ -1,0 +1,23 @@
+{
+  "name": "cpp-coding-agent-lab-site",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate-course-data.mjs",
+    "predev": "npm run generate",
+    "dev": "vite",
+    "prebuild": "npm run generate",
+    "build": "vite build --base=./ --sourcemap",
+    "preview": "vite preview",
+    "check": "npm run generate && node scripts/check-course-data.mjs && vite build --base=./ --sourcemap"
+  },
+  "dependencies": {
+    "dompurify": "^3.2.6",
+    "highlight.js": "^11.11.1",
+    "marked": "^16.1.1"
+  },
+  "devDependencies": {
+    "vite": "^7.1.1"
+  }
+}

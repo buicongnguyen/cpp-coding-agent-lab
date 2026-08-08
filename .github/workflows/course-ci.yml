@@ -1,0 +1,48 @@
+name: Course checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  website:
+    name: Website build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install website dependencies
+        run: npm ci
+      - name: Validate content and build website
+        run: npm run check
+
+  course:
+    name: C++ reference and teaching package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Validate teaching materials
+        shell: pwsh
+        run: ./course/verify_materials.ps1
+      - name: Configure reference project
+        run: cmake -S course/reference -B course/reference/build -DCMAKE_BUILD_TYPE=Release
+      - name: Build reference project
+        run: cmake --build course/reference/build --config Release --parallel
+      - name: Test reference project
+        run: ctest --test-dir course/reference/build -C Release --output-on-failure
+

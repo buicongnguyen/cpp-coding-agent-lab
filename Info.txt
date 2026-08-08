@@ -1,0 +1,101 @@
+Course Description
+Remember writing a compiler in university? Not a real compiler, but something that handled a subset of a language and generated naive code. You’d never ship it. But decades later, you still understand how compilers work because you built one.
+
+That’s what we’re doing here. In one intensive day, you will build a working AI coding agent in C++.
+Not Claude Code. Not Cursor. A simple thing you fully understand, that talks to an LLM, defines tools, executes them, and runs the same agentic loop that powers every AI coding assistant on the market.
+
+This workshop emerged from my own AI/C++ journey. I watched AI stumble through C++ like a freshman who skipped the first three weeks of class, until I discovered the problem wasn’t the models, it was me. The breakthrough came from understanding what’s actually happening under the hood.
+
+In this workshop, you will write a fully functioning agent harness in C++. Like those university compilers, it will not be production ready, but will serve as a laboratory for learning how generative AI large language models can be used as C++ programmers.
+
+By end of day, your agent will read code, write code, compile it, fix its own errors, and even modify its own source code to add new capabilities.
+
+You won’t ship this agent. But you’ll understand what Claude Code and Cursor are actually doing. When they break, you’ll know why. When new tools emerge, you’ll evaluate them with comprehension instead of hype.
+
+What You’ll Build:
+
+A C++ program that talks to an LLM API
+System prompts that shape model behavior
+Tool definitions (read_file, write_file, run_command)
+A working agentic loop
+An agent capable of modifying its own source
+
+What You’ll Understand:
+
+Why the same model acts completely different with different prompts
+What “tool calling” actually means (spoiler: you do all the work)
+How context windows work and why you send the whole conversation every time
+What “turns” are and how the conversation builds up
+Why agents sometimes go off the rails and how to prevent it
+
+Format: Lab-heavy. Students build; instructor guides. Starter code provided for API plumbing.
+
+Prerequisites
+In order to benefit from this class, you will need:
+
+Professional C++ experience—you should be comfortable writing and debugging C++ code
+Basic familiarity with REST APIs and JSON (we won’t teach HTTP or JSON parsing)
+An OpenRouter account with API key (free tier is sufficient for the workshop)
+A laptop with a working C++ build environment (C++17 or later, CMake)
+Willingness to experiment, break things, and discuss discoveries with fellow participants
+
+Starter code is provided that handles API communication and JSON parsing. You’re here to learn how AI agents work, not to debug libcurl.
+
+Course Topics
+The “Dumb Model” Problem
+
+How models generate responses
+What happens when you ask an LLM to read a file it can’t access
+Why models hallucinate confidently, and what this tells us about how they work
+The fundamental statelessness of LLM interactions
+
+System Prompts: Programming the Model
+
+How the same model behaves completely differently with different prompts (and even with the same prompts).
+The three message roles: system, user, assistant
+Crafting effective system prompts for coding tasks
+Live experiments: helpful assistant vs. grumpy reviewer vs. pedantic standards lawyer
+
+Tool Definitions and Tool Calling
+
+JSON schema for describing tools
+The critical insight: tool definitions say how, system prompts say when and why
+Examining tool call responses: finish_reason, tool_calls array, arguments
+Why adding a tool definition alone doesn’t make the model use it
+
+Executing Tools and Returning Results
+
+The tool result message format
+Sending results back to the model
+Watching the model continue with new information
+Implementing read_file, write_file, and run_command
+
+The Agentic Loop
+
+The fundamental pattern: Think → Request Tool → Execute → Observe → Repeat
+Detecting when to stop: finish_reason, max iterations, user interrupt
+Error handling: what happens when tools fail
+Building the complete loop in C++
+
+Understanding Turns and Context
+
+Why you send the entire conversation every time
+How the messages array builds up over multiple tool calls
+Context window limits and their implications
+What “turns” mean in practice
+
+The Self-Improvement Challenge
+
+Pointing your agent at its own source code
+Asking it to add a new tool or improve error handling
+Watching code that writes code
+Discussion: what worked, what didn’t, what surprised you
+
+Course Instructor
+Jody Hagins
+
+Jody Hagins a Director at LSEG, working on high-frequency trading infrastructure, including feed handlers, normalization processes, and low-latency systems. His background spans four decades, from graduate work in AI during the 1980s (Lisp, Smalltalk, model-based reasoning) through Unix kernel development in C, to modern C++ for financial systems.
+
+After approaching generative AI with healthy skepticism born of living through two AI winters, Jody discovered that the tools had finally caught up, but only for those who understand how to use them effectively. His 2026 talk, “Meet Claude, Your New HFT Infrastructure Engineer,” demonstrated building a complete OPRA feed handler without writing code by hand.
+
+Jody has spoken at numerous C++ conferences on a wide range of C++ topics
