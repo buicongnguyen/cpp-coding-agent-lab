@@ -36,6 +36,10 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
+      - name: Install Linux HTTP dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libcurl4-openssl-dev
       - name: Validate teaching materials
         shell: pwsh
         run: ./course/verify_materials.ps1
@@ -45,4 +49,3 @@ jobs:
         run: cmake --build course/reference/build --config Release --parallel
       - name: Test reference project
         run: ctest --test-dir course/reference/build -C Release --output-on-failure
-
