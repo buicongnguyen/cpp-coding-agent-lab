@@ -31,7 +31,7 @@ This ledger separates files that exist from evidence that an execution or extern
 | raw request/response JSON for every chapter demo | COMPLETE_REPO | `demos/chapter_fixtures/00_*.json` through `08_*.json`; all are explicitly authored deterministic fixtures |
 | learner lab: goal/start/constraints/acceptance/three hints/five-minute checkpoint/stretch | COMPLETE_REPO | nine `labs/*.md` files |
 | per-chapter assessment: two concepts, trace item, executable check, misconception notes | COMPLETE_REPO | nine `assessments/*.md` files |
-| maintenance/research block with primary sources | COMPLETE_REPO | manuscript maintenance notes and `sources/RESEARCH_INDEX.md`; delivery-date recheck remains external below |
+| maintenance/research block with primary sources | COMPLETE_REPO | manuscript maintenance notes and `sources/RESEARCH_INDEX.md`; the 2026-08-10 sweep records per-topic outcomes and explicitly records throttled OWASP pages rather than inventing a successful recheck; delivery-date review remains below |
 | one artifact feeds the next chapter | COMPLETE_REPO | `LEARNER_PATH.md`, lab deliverables, checkpoint sequence |
 
 ## Canonical code, checkpoints, and evaluation
@@ -51,6 +51,7 @@ This ledger separates files that exist from evidence that an execution or extern
 | at least three distinct deterministic failure traces | COMPLETE_REPO | executable captures `repeated_read_trace.jsonl`, `empty_final_trace.jsonl`; authored boundary fixtures `path_escape_failure_trace.jsonl`, `malformed_arguments_failure_trace.jsonl`, `false_success_failure_trace.jsonl`; provenance is explicit |
 | deterministic `list_files` checkpoint fallback | COMPLETE_REPO | `demos/capstone_trace.jsonl` records automated starter materialization, absence check, checked-in instructor answer-patch hash/application, isolated configure/build/full CTest, and sanitized paths; it records neither model-generated code nor human review |
 | live example capture | EXTERNAL_PENDING | `demos/live_provider_trace_template.jsonl` is only a redacted schema; actual dated provider run required |
+| reproducible live E1–E5 × three-trial capture workflow | COMPLETE_REPO | `scripts/run-live-gates.ps1` produces exactly 15 isolated, labeled, unreviewed trials; dry-run structure is verifier-tested and `assets/chapter_00/LIVE_GATE_RUNBOOK.md` requires spend controls plus second-person promotion review |
 
 ## Chapter-specific production assets
 
@@ -59,7 +60,8 @@ This ledger separates files that exist from evidence that an execution or extern
 | 0 | cross-platform setup guide | COMPLETE_REPO | `assets/chapter_00/SETUP.md` |
 | 0 | five-minute deterministic preflight and mock mode | COMPLETE_REPO | clean final build printed compiler, CMake, C++ standard, cwd, mode/key state, tool count, model, finish reason, usage, elapsed time, and deterministic response |
 | 0 | sanitized response and HTTP-status troubleshooting | COMPLETE_REPO | `assets/chapter_00/sanitized_response.json`, `TROUBLESHOOTING.md` |
-| 0 | current pinned/fallback tool-capable models | EXTERNAL_PENDING | no model is claimed by the synthetic placeholder; dated API/provider check required |
+| 0 | dated primary/fallback tool-capable model candidates | COMPLETE_REPO | `assets/chapter_00/model_selection_2026-08-10.json` retains public Models API and single-model endpoint evidence for `openai/gpt-5.4-mini` and `google/gemini-2.5-flash`; this proves advertised catalog capability, not authenticated success |
+| 0 | authenticated primary/fallback preflight | EXTERNAL_PENDING | no key exists in the local environment or GitHub repository secrets; both candidates remain explicitly untested until an instructor account runs and reviews them |
 | 1 | secret-file/stateless history experiment deliverable | COMPLETE_REPO | `assets/chapter_01/EXPERIMENT_REPORT.md`, Chapter 1 demo fixture |
 | 2 | worksheet, four prompts, fixed cases | COMPLETE_REPO | `assets/chapter_02/` |
 | 2 | instructor examples from the actual pinned model | EXTERNAL_PENDING | deterministic examples are labeled rehearsal data; three+ live trials must record model/settings/date |
@@ -89,7 +91,7 @@ This ledger separates files that exist from evidence that an execution or extern
 |---|---|---|
 | timed pilot with two experienced C++ developers unfamiliar with repository | EXTERNAL_PENDING | `PILOT.md` is explicitly unexecuted; requires two real participants and issue closure |
 | clean-room learner setup | EXTERNAL_PENDING | run from the published setup on a clean supported machine/image |
-| Windows, macOS, Linux checkpoint runs | EXTERNAL_PENDING | CI can support evidence, but release-specific logs must cover every advertised platform/checkpoint |
+| Windows, macOS, Linux checkpoint runs | COMPLETE_REPO | release-specific [Course checks run 31339259838](https://github.com/buicongnguyen/cpp-coding-agent-lab/actions/runs/31339259838) passed the 10 unique checkpoint states, checkpoint release-gate tests, canonical 16-test suite, and E1–E7 on Ubuntu, Windows, and macOS for implementation commit `b23e9e4` |
 | pinned live eval subset E1–E5: three trials each | EXTERNAL_PENDING | 15 labeled live results with requested/returned model and routing differences; E6/E7 remain deterministic harness gates |
 | account credit/rate limits, fallback credentials, spend controls | EVENT_TIME | instructor-only account checks; never store credential values |
 | current provider model/tool/error behavior and response format | EVENT_TIME | dated primary-source/API review and re-capture when changed |

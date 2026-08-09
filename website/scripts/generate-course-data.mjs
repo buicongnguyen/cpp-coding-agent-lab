@@ -316,6 +316,8 @@ const resourceDefinitions = [
   { id: "pilot", title: "Pilot protocol and evidence record", path: "PILOT.md" },
   { id: "assets", title: "Learner and instructor assets", path: "assets/README.md" },
   { id: "demos", title: "Demonstration and trace catalog", path: "demos/README.md" },
+  { id: "model-selection", title: "Dated live-model selection", path: "assets/chapter_00/MODEL_SELECTION.md" },
+  { id: "live-gates", title: "Live-provider gate runbook", path: "assets/chapter_00/LIVE_GATE_RUNBOOK.md" },
 ];
 
 const resources = [];

@@ -101,7 +101,7 @@ Live mode is optional. Set `OPENROUTER_API_KEY` and `OPENROUTER_MODEL`, copy the
 
 ## Research and maintenance
 
-The course research was verified on 2026-08-09. Each chapter cites current primary documentation where behavior can change. The maintenance schedule and source ownership are recorded in [course/sources/RESEARCH_INDEX.md](course/sources/RESEARCH_INDEX.md). Live provider, pricing, and classroom checks remain date-of-delivery gates rather than claims embedded in the deterministic package.
+The chapter research baseline was verified on 2026-08-09 and the cross-chapter maintenance sweep was refreshed on 2026-08-10. Each chapter cites current primary documentation where behavior can change. The maintenance schedule, review outcomes, and source ownership are recorded in [course/sources/RESEARCH_INDEX.md](course/sources/RESEARCH_INDEX.md). Live provider, pricing, and classroom checks remain date-of-delivery gates rather than claims embedded in the deterministic package.
 
 ## Contributing
 

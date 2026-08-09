@@ -1,0 +1,37 @@
+{
+  "capture_kind": "public_model_catalog_check",
+  "captured_live_completion": false,
+  "checked_date_utc": "2026-08-10",
+  "source": "https://openrouter.ai/api/v1/models?supported_parameters=tools",
+  "selection": [
+    {
+      "role": "primary_candidate",
+      "request_id": "openai/gpt-5.4-mini",
+      "single_model_http_status": 200,
+      "name": "OpenAI: GPT-5.4 Mini",
+      "canonical_slug": "openai/gpt-5.4-mini-20260317",
+      "context_length": 400000,
+      "supports_tools": true,
+      "supports_tool_choice": true,
+      "prompt_price_per_token_usd": "0.00000075",
+      "completion_price_per_token_usd": "0.0000045",
+      "expiration_date": null,
+      "authenticated_preflight": "pending"
+    },
+    {
+      "role": "fallback_candidate",
+      "request_id": "google/gemini-2.5-flash",
+      "single_model_http_status": 200,
+      "name": "Google: Gemini 2.5 Flash",
+      "canonical_slug": "google/gemini-2.5-flash",
+      "context_length": 1048576,
+      "supports_tools": true,
+      "supports_tool_choice": true,
+      "prompt_price_per_token_usd": "0.0000003",
+      "completion_price_per_token_usd": "0.0000025",
+      "expiration_date": null,
+      "authenticated_preflight": "pending"
+    }
+  ],
+  "warning": "Public catalog metadata proves discoverability and advertised parameters only. It is not authenticated completion, quality, quota, routing, or fallback evidence."
+}

@@ -381,6 +381,9 @@ $namedAssets = @(
     'assets/chapter_00/SETUP.md',
     'assets/chapter_00/sanitized_response.json',
     'assets/chapter_00/TROUBLESHOOTING.md',
+    'assets/chapter_00/MODEL_SELECTION.md',
+    'assets/chapter_00/model_selection_2026-08-10.json',
+    'assets/chapter_00/LIVE_GATE_RUNBOOK.md',
     'assets/chapter_01/EXPERIMENT_REPORT.md',
     'assets/chapter_02/PROMPT_WORKSHEET.md',
     'assets/chapter_02/cases.json',
@@ -404,6 +407,59 @@ $namedAssets = @(
 foreach ($asset in $namedAssets) {
     [void](Require-File $asset 40)
     if ([System.IO.Path]::GetExtension($asset) -eq '.json') { [void](Convert-RequiredJson $asset) }
+}
+
+$modelSelection = Convert-RequiredJson 'assets/chapter_00/model_selection_2026-08-10.json'
+if ($null -ne $modelSelection) {
+    if (-not (Has-Property $modelSelection 'capture_kind') -or $modelSelection.capture_kind -ne 'public_model_catalog_check' -or
+        -not (Has-Property $modelSelection 'captured_live_completion') -or $modelSelection.captured_live_completion -ne $false) {
+        Add-Failure 'The Chapter 0 model selection must identify public catalog evidence without claiming a live completion.'
+    }
+    $selections = if (Has-Property $modelSelection 'selection') { @($modelSelection.selection) } else { @() }
+    if ($selections.Count -ne 2) {
+        Add-Failure "The Chapter 0 model selection contains $($selections.Count) candidates; expected primary and fallback."
+    } else {
+        foreach ($selection in $selections) {
+            foreach ($field in @('role', 'request_id', 'single_model_http_status', 'canonical_slug', 'context_length', 'supports_tools', 'supports_tool_choice', 'authenticated_preflight')) {
+                if (-not (Has-Property $selection $field)) { Add-Failure "Model selection entry lacks $field." }
+            }
+            if ((Has-Property $selection 'single_model_http_status') -and [int]$selection.single_model_http_status -ne 200) {
+                Add-Failure "Model selection $($selection.request_id) was not retained from a successful public lookup."
+            }
+            if ((Has-Property $selection 'supports_tools') -and $selection.supports_tools -ne $true) {
+                Add-Failure "Model selection $($selection.request_id) does not advertise tools."
+            }
+            if ((Has-Property $selection 'authenticated_preflight') -and $selection.authenticated_preflight -ne 'pending') {
+                Add-Failure "Model selection $($selection.request_id) must remain pending until authenticated evidence is reviewed."
+            }
+        }
+    }
+}
+
+$liveGateRunnerPath = Require-File 'scripts/run-live-gates.ps1' 3000
+if ($null -ne $liveGateRunnerPath) {
+    $liveGateRunnerText = Get-Content -LiteralPath $liveGateRunnerPath -Raw
+    Require-Markers 'course/scripts/run-live-gates.ps1' $liveGateRunnerText @(
+        'OPENROUTER_API_KEY is required',
+        'exactly three trials per E1-E5 case',
+        'pending_second_person_redaction_and_assertion_review',
+        'Assert-UnderRoot',
+        'captured_live_unreviewed'
+    )
+    try {
+        $dryRunText = (& $liveGateRunnerPath -DryRun -Trials 3 | Out-String)
+        $dryRunPlan = $dryRunText | ConvertFrom-Json
+        if ($dryRunPlan.mode -ne 'dry_run' -or [int]$dryRunPlan.trials_per_case -ne 3 -or
+            [int]$dryRunPlan.planned_trial_count -ne 15 -or @($dryRunPlan.cases).Count -ne 5) {
+            Add-Failure 'The live-gate dry run must describe exactly E1-E5 with three trials each (15 total).'
+        }
+        $dryRunIds = @($dryRunPlan.cases | ForEach-Object { [string]$_.id })
+        if (($dryRunIds -join ',') -ne 'E1,E2,E3,E4,E5') {
+            Add-Failure "The live-gate dry run returned unexpected case order: $($dryRunIds -join ',')."
+        }
+    } catch {
+        Add-Failure "The live-gate dry-run verifier failed: $($_.Exception.Message)"
+    }
 }
 
 # Wrap-up, pilot, delivery, and completion ledgers are required, while external evidence remains honest.
@@ -620,7 +676,9 @@ if (Test-Path -LiteralPath $websiteGeneratorPath -PathType Leaf) {
         'WRAP_UP.md',
         'DELIVERY_GATES.md',
         'PLAN_COMPLETION_MATRIX.md',
-        'PILOT.md'
+        'PILOT.md',
+        'assets/chapter_00/MODEL_SELECTION.md',
+        'assets/chapter_00/LIVE_GATE_RUNBOOK.md'
     )
     foreach ($resourcePath in $websiteResourcePaths) {
         $needle = 'path: "' + $resourcePath + '"'

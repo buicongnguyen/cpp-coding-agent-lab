@@ -4,7 +4,7 @@ Last reviewed: 2026-08-09
 
 These files turn the chapter manuscripts into reproducible classroom activities. They are deliberately separate from provider recordings:
 
-- `chapter_00/` contains setup, a sanitized wire example, and a provider-error decision table.
+- `chapter_00/` contains setup, a sanitized wire example, a provider-error decision table, a dated public model-catalog selection, and the executable live-gate runbook.
 - `chapter_01/` contains the capability-claim experiment report.
 - `chapter_02/` contains four controlled prompt variants, fixed cases, a worksheet, and deterministic example outputs.
 - `chapter_04/` contains path and command policy cases, fake calls, and a tool-result transcript worksheet.

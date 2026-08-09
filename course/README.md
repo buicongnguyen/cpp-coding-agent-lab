@@ -18,7 +18,7 @@ Start with [`CURRICULUM_INDEX.md`](CURRICULUM_INDEX.md) for the complete chapter
 - `slides/` — the 70-slide facilitator deck, maintainer generation source, and chapter outlines.
 - `assessments/` — questions, answer keys, and executable checks.
 - `assets/` and `demos/` — worksheets, raw fixtures, and provenance-labeled traces.
-- `scripts/` — checkpoint materialization, evaluation, and capstone-capture automation.
+- `scripts/` — checkpoint materialization, deterministic evaluation, capstone capture, and a guarded 15-run live-gate harness.
 - `sources/` — research-maintenance index.
 - `WRAP_UP.md`, `PILOT.md`, and `DELIVERY_GATES.md` — exit check and honest release gates.
 
@@ -72,3 +72,9 @@ Set `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, and optionally `COURSE_AGENT_SYSTE
 The examples above run from the repository root and show a single-config macOS/Linux path. On Windows PowerShell use `.\course\reference\build\coding_agent.exe` for a single-config generator or `.\course\reference\build\Debug\coding_agent.exe` for a multi-config generator.
 
 Live mode is intentionally optional. Never point the workshop agent at an important working tree.
+
+Before an instructor enables live mode, use [`assets/chapter_00/MODEL_SELECTION.md`](assets/chapter_00/MODEL_SELECTION.md) for the dated candidate record and [`assets/chapter_00/LIVE_GATE_RUNBOOK.md`](assets/chapter_00/LIVE_GATE_RUNBOOK.md) for the E1–E5 × three-trial evidence workflow. A no-cost dry run validates the complete execution plan:
+
+```powershell
+./course/scripts/run-live-gates.ps1 -DryRun -Trials 3
+```
