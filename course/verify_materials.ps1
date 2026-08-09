@@ -14,7 +14,7 @@ $expected = @(
 )
 
 $requirements = @{
-    chapters = @('Last verified: 2026-08-08', '## Main ideas reviewed', '## Current ecosystem', '## What you should now be able to explain', 'Retest')
+    chapters = @('Last verified: 2026-08-08', "## What you'll learn and prove", '## Current ecosystem', '## What you should now be able to explain', 'Retest')
     labs = @('Last verified: 2026-08-08', '## Goal and constraints', '**Five-minute checkpoint:**', '## Acceptance criteria', '## Hints', '## Stretch')
     instructor = @('Last verified: 2026-08-08', '## Demonstration script', 'Expected', 'fallback', 'Misconceptions')
     slides = @('Last verified: 2026-08-08', '**Prediction:**')

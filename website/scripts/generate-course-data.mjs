@@ -18,6 +18,11 @@ const chapterDefinitions = [
     eyebrow: "Orient",
     time: 25,
     outcome: "Prove the toolchain and deterministic model path before adding complexity.",
+    selfPacedTime: 50,
+    mission: "Make the finished agent observable before you are asked to trust it.",
+    upgrade: "A reproducible model boundary and preflight executable",
+    failure: "Provider, compiler, and harness failures look identical",
+    proof: "A deterministic preflight succeeds and one controlled failure is classified",
   },
   {
     id: 1,
@@ -28,6 +33,11 @@ const chapterDefinitions = [
     eyebrow: "Observe",
     time: 40,
     outcome: "Explain exactly what the model can know and where observations come from.",
+    selfPacedTime: 65,
+    mission: "Catch a confident model claiming knowledge it was never given.",
+    upgrade: "Typed message history with explicit evidence provenance",
+    failure: "A plausible guess is mistaken for a workspace observation",
+    proof: "The outgoing request proves whether the hidden nonce was present",
   },
   {
     id: 2,
@@ -38,6 +48,11 @@ const chapterDefinitions = [
     eyebrow: "Direct",
     time: 40,
     outcome: "Build causal message history and run a controlled instruction experiment.",
+    selfPacedTime: 70,
+    mission: "Change one instruction variable and measure what actually changes.",
+    upgrade: "Role-aware messages and a repeatable prompt experiment",
+    failure: "Prompt folklore replaces controlled comparison",
+    proof: "Four variants run against one unchanged task and produce an evidence table",
   },
   {
     id: 3,
@@ -48,6 +63,11 @@ const chapterDefinitions = [
     eyebrow: "Describe",
     time: 45,
     outcome: "Expose a precise, constrained read capability through JSON Schema.",
+    selfPacedTime: 75,
+    mission: "Give the model a vocabulary for action without giving it authority.",
+    upgrade: "Provider-neutral tool definitions and defensive call parsing",
+    failure: "A valid-looking JSON object is treated as an executed action",
+    proof: "A raw tool request pauses at the harness boundary and passes schema tests",
   },
   {
     id: 4,
@@ -58,6 +78,11 @@ const chapterDefinitions = [
     eyebrow: "Act",
     time: 60,
     outcome: "Validate, authorize, execute, and correlate three local tools safely.",
+    selfPacedTime: 95,
+    mission: "Turn a model proposal into a controlled local effect with no hidden jump.",
+    upgrade: "A five-stage dispatcher for read, write, list, build, and test",
+    failure: "Correct JSON crosses the authority boundary unchecked",
+    proof: "Allowed calls succeed while path escape, free-form commands, and bad IDs fail",
   },
   {
     id: 5,
@@ -68,6 +93,11 @@ const chapterDefinitions = [
     eyebrow: "Iterate",
     time: 60,
     outcome: "Assemble the feedback loop and repair a project with hard stop conditions.",
+    selfPacedTime: 105,
+    mission: "Close the loop, then prove that it cannot run forever or declare false success.",
+    upgrade: "A bounded model → tool → evidence state machine",
+    failure: "One successful tool call is mistaken for a working agent",
+    proof: "The deterministic trace repairs two defects and stops on fresh passing evidence",
   },
   {
     id: 6,
@@ -78,6 +108,11 @@ const chapterDefinitions = [
     eyebrow: "Measure",
     time: 30,
     outcome: "Read a trace, track growth, and choose explicit context budgets.",
+    selfPacedTime: 60,
+    mission: "Account for every message, token category, and repeated byte in a run.",
+    upgrade: "Structured tracing, usage accounting, and explicit context policy",
+    failure: "Conversation growth is invisible until cost or context limits fail",
+    proof: "Trace totals reconcile and the latest verifier remains exact after compaction",
   },
   {
     id: 7,
@@ -88,6 +123,11 @@ const chapterDefinitions = [
     eyebrow: "Constrain",
     time: 30,
     outcome: "Turn policy into enforcement and test it with deterministic adversarial cases.",
+    selfPacedTime: 75,
+    mission: "Attack the harness and make every control show its work.",
+    upgrade: "A threat-to-control matrix backed by deterministic evaluations",
+    failure: "A cooperative prompt is mistaken for a security boundary",
+    proof: "Allowed cases pass, forbidden effects fail, and recovery is visible in the trace",
   },
   {
     id: 8,
@@ -98,6 +138,11 @@ const chapterDefinitions = [
     eyebrow: "Prove",
     time: 50,
     outcome: "Make, review, build, and verify a bounded change to the agent itself.",
+    selfPacedTime: 110,
+    mission: "Let the agent change its own source without surrendering review or proof.",
+    upgrade: "A complete proposal → edit → diff → build → test governance chain",
+    failure: "Generated code is accepted because it looks plausible",
+    proof: "A focused diff and fresh tests demonstrate a bounded vertical capability",
   },
 ];
 
@@ -142,6 +187,7 @@ for (const definition of chapterDefinitions) {
 }
 
 const resourceDefinitions = [
+  { id: "learner-path", title: "Choose your learning path", path: "LEARNER_PATH.md" },
   { id: "course-guide", title: "Course guide", path: "README.md" },
   { id: "curriculum", title: "Curriculum delivery index", path: "CURRICULUM_INDEX.md" },
   { id: "research", title: "Research maintenance index", path: "sources/RESEARCH_INDEX.md" },
@@ -160,10 +206,23 @@ for (const definition of resourceDefinitions) {
   });
 }
 
+const repairTraceText = await readCourseFile("demos/full_repair_trace.jsonl");
+const repairTrace = repairTraceText
+  .split(/\r?\n/)
+  .filter(Boolean)
+  .map((line, index) => {
+    try {
+      return JSON.parse(line);
+    } catch (error) {
+      throw new Error(`Invalid repair trace event ${index + 1}: ${error.message}`);
+    }
+  });
+
 const courseData = {
   generatedAt: new Date().toISOString(),
   chapters,
   resources,
+  repairTrace,
 };
 
 await mkdir(outputDirectory, { recursive: true });

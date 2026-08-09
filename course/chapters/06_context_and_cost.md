@@ -4,7 +4,7 @@ Last verified: 2026-08-08
 Class time: 30 minutes  
 Checkpoint: `06_trace_and_limits`
 
-## Main ideas reviewed
+## What you'll learn and prove
 
 | Main idea | Clearest formulation | Measurement |
 |---|---|---|

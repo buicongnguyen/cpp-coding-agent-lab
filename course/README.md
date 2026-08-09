@@ -1,5 +1,7 @@
 # C++ coding-agent workshop package
 
+Choose a delivery route before starting: [one-day workshop or self-paced field course](LEARNER_PATH.md). Both routes use the same chapters and evidence gates; only pacing and facilitation differ.
+
 This directory is the executable course package generated from `Course_Chapter_Production_Plan.md`.
 
 Start with [`CURRICULUM_INDEX.md`](CURRICULUM_INDEX.md) for the complete chapter-by-chapter delivery map. The design corrections that were applied before production are recorded in [`LOGIC_REVIEW.md`](LOGIC_REVIEW.md), [`CHAPTER_IDEA_REVIEW.md`](CHAPTER_IDEA_REVIEW.md) records the second main-idea clarity review, and [`CONTENT_TRACEABILITY.md`](CONTENT_TRACEABILITY.md) maps the supplied brief to the delivered artifacts.

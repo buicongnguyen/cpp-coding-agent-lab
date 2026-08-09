@@ -4,7 +4,7 @@ Last verified: 2026-08-08
 Class time: 45 minutes  
 Checkpoint: `03_tool_schema`
 
-## Main ideas reviewed
+## What you'll learn and prove
 
 | Main idea | Clearest formulation | Boundary to remember |
 |---|---|---|

@@ -2,7 +2,7 @@
 
 Build a small, inspectable coding-agent harness in modern C++—from the first model request to a bounded tool loop that can diagnose, edit, build, and test a real project.
 
-This repository is an open course package for experienced C++ developers. It combines a book-like curriculum with hands-on labs, deterministic exercises, assessments, a reference implementation, and a searchable learning website inspired by the clear progression and runnable-code philosophy of [Hello Algo](https://github.com/krahets/hello-algo).
+This repository is an open course package for experienced C++ developers. It combines a mission-based curriculum with hands-on labs, deterministic challenges, executable traces, assessments, a reference implementation, and an interactive learning website inspired by the clear progression and runnable-code philosophy of [Hello Algo](https://github.com/krahets/hello-algo).
 
 **[Open the interactive course →](https://buicongnguyen.github.io/cpp-coding-agent-lab/)**
 
@@ -23,8 +23,9 @@ The course teaches the mechanism directly. No agent framework is required, and e
 ## Start here
 
 1. Open the [published course website](https://buicongnguyen.github.io/cpp-coding-agent-lab/).
-2. Follow chapters 0–8 in order; each chapter includes a lesson, lab, exercise, and checkpoint.
-3. Build and test the reference harness:
+2. Choose the one-day workshop or self-paced field-course track in the [learner path](course/LEARNER_PATH.md).
+3. Follow chapters 0–8 in order; each mission includes a lesson, lab, challenge, and evidence checkpoint.
+4. Build and test the reference harness:
 
 ```powershell
 cmake -S course/reference -B course/reference/build
@@ -32,7 +33,7 @@ cmake --build course/reference/build --config Debug
 ctest --test-dir course/reference/build -C Debug --output-on-failure
 ```
 
-4. Validate the teaching package:
+5. Validate the teaching package:
 
 ```powershell
 ./course/verify_materials.ps1
@@ -80,6 +81,8 @@ npm run dev
 ```
 
 The website reads the course Markdown during its build, so lesson content is maintained in one place. A production build is available through `npm run build`.
+
+The website also embeds the reference executable's deterministic repair trace. Learners can scrub through model requests, tool proposals, correlated results, failures, edits, and final verification without relying on a live provider.
 
 ## Deterministic and live modes
 

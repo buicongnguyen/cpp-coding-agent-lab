@@ -15,8 +15,14 @@ const documentKinds = ["lesson", "lab", "exercise", "checkpoint"];
 const kindLabels = {
   lesson: "Lesson",
   lab: "Lab",
-  exercise: "Exercise",
+  exercise: "Challenge",
   checkpoint: "Checkpoint",
+};
+const kindActions = {
+  lesson: "Understand",
+  lab: "Build",
+  exercise: "Reason",
+  checkpoint: "Prove",
 };
 
 hljs.registerLanguage("json", jsonLanguage);
@@ -24,10 +30,20 @@ hljs.registerLanguage("powershell", powershellLanguage);
 hljs.registerLanguage("text", plaintextLanguage);
 hljs.registerLanguage("plaintext", plaintextLanguage);
 
+const legacyCompleted = JSON.parse(localStorage.getItem("agent-lab-progress") || "[]").map(Number);
+const savedActivities = JSON.parse(localStorage.getItem("agent-lab-activity-progress") || "[]");
+
 const state = {
-  completed: new Set(
-    JSON.parse(localStorage.getItem("agent-lab-progress") || "[]").map(Number),
+  completedActivities: new Set(
+    savedActivities.length
+      ? savedActivities
+      : legacyCompleted.flatMap((chapterId) =>
+          documentKinds.map((kind) => `${chapterId}:${kind}`),
+        ),
   ),
+  mode: localStorage.getItem("agent-lab-mode") || "workshop",
+  traceIndex: 0,
+  mechanismStage: 0,
   theme:
     localStorage.getItem("agent-lab-theme") ||
     (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
@@ -79,12 +95,45 @@ function sourceUrl(path) {
   return `${repositoryUrl}/blob/main/${path}`;
 }
 
+function activityKey(chapterId, kind) {
+  return `${chapterId}:${kind}`;
+}
+
+function activityComplete(chapterId, kind) {
+  return state.completedActivities.has(activityKey(chapterId, kind));
+}
+
+function chapterProgress(chapterId) {
+  return documentKinds.filter((kind) => activityComplete(chapterId, kind)).length;
+}
+
+function chapterComplete(chapterId) {
+  return chapterProgress(chapterId) === documentKinds.length;
+}
+
 function progressPercent() {
-  return Math.round((state.completed.size / courseData.chapters.length) * 100);
+  const total = courseData.chapters.length * documentKinds.length;
+  return Math.round((state.completedActivities.size / total) * 100);
 }
 
 function persistProgress() {
-  localStorage.setItem("agent-lab-progress", JSON.stringify([...state.completed].sort()));
+  localStorage.setItem(
+    "agent-lab-activity-progress",
+    JSON.stringify([...state.completedActivities].sort()),
+  );
+}
+
+function nextActivity() {
+  for (const chapter of courseData.chapters) {
+    for (const kind of documentKinds) {
+      if (!activityComplete(chapter.id, kind)) return { chapterId: chapter.id, kind };
+    }
+  }
+  return { chapterId: 0, kind: "lesson" };
+}
+
+function displayTime(chapter) {
+  return state.mode === "workshop" ? chapter.time : chapter.selfPacedTime;
 }
 
 function chapterHref(id, kind = "lesson") {
@@ -112,8 +161,9 @@ function shellTemplate() {
     <div class="app-shell">
       <aside class="sidebar" id="course-sidebar" aria-label="Course navigation">
         <div class="sidebar-progress">
-          <div class="progress-copy"><span>Your progress</span><strong data-progress-label>${progressPercent()}%</strong></div>
+          <div class="progress-copy"><span>Your field log</span><strong data-progress-label>${state.completedActivities.size}/36</strong></div>
           <div class="progress-track" aria-hidden="true"><span data-progress-bar style="width:${progressPercent()}%"></span></div>
+          <small>${progressPercent()}% · ${state.mode === "workshop" ? "one-day workshop" : "self-paced course"}</small>
         </div>
         <nav id="course-nav"></nav>
         <div class="sidebar-note">
@@ -153,105 +203,245 @@ function renderSidebar(route) {
     </a>
     <ol class="chapter-nav">
       ${courseData.chapters
-        .map(
-          (chapter) => `
+        .map((chapter) => {
+          const progress = chapterProgress(chapter.id);
+          const complete = chapterComplete(chapter.id);
+          return `
           <li>
             <a class="chapter-link ${route.page === "chapter" && route.chapterId === chapter.id ? "is-current" : ""}"
               href="${chapterHref(chapter.id)}" ${route.page === "chapter" && route.chapterId === chapter.id ? 'aria-current="page"' : ""}>
-              <span class="nav-number ${state.completed.has(chapter.id) ? "is-complete" : ""}">${state.completed.has(chapter.id) ? "✓" : String(chapter.id).padStart(2, "0")}</span>
-              <span><strong>${escapeHtml(chapter.shortTitle)}</strong><small>${escapeHtml(chapter.eyebrow)} · ${chapter.time} min</small></span>
+              <span class="nav-number ${complete ? "is-complete" : ""}">${complete ? "✓" : String(chapter.id).padStart(2, "0")}</span>
+              <span><strong>${escapeHtml(chapter.shortTitle)}</strong><small>${progress}/4 evidence · ${displayTime(chapter)} min</small></span>
             </a>
-          </li>`,
-        )
+          </li>`;
+        })
         .join("")}
     </ol>
     <div class="nav-section-label nav-resources-label">Reference</div>
     <a class="nav-home ${route.page === "resources" ? "is-current" : ""}" href="#/resources/course-guide">
-      <span class="nav-number">→</span><span><strong>Course resources</strong><small>Guides, research, reviews</small></span>
+      <span class="nav-number">→</span><span><strong>Course resources</strong><small>Learning path, guides, research</small></span>
     </a>
   `;
 }
 
+const mechanismStages = [
+  {
+    label: "Context",
+    title: "Construct the model's world",
+    copy: "The harness chooses the system instructions, message history, and tool definitions. If evidence is absent here, the model cannot observe it.",
+    boundary: "No local authority yet",
+  },
+  {
+    label: "Proposal",
+    title: "Receive text or a typed request",
+    copy: "The model emits tokens. A tool call is still only structured data with a name, arguments, and correlation ID.",
+    boundary: "A proposal is not execution",
+  },
+  {
+    label: "Policy",
+    title: "Validate and authorize",
+    copy: "The dispatcher checks shape, meaning, workspace scope, command allowlists, byte limits, and the current run budget before any effect.",
+    boundary: "The harness owns authority",
+  },
+  {
+    label: "Evidence",
+    title: "Return an observation to the loop",
+    copy: "A local tool runs and produces a correlated result. That evidence joins history so the next model decision can react to what actually happened.",
+    boundary: "Fresh proof controls stopping",
+  },
+];
+
+function parseDetail(event) {
+  try {
+    return JSON.parse(event.detail || "{}");
+  } catch {
+    return { raw: event.detail || "" };
+  }
+}
+
+function tracePresentation(event) {
+  const detail = parseDetail(event);
+  if (event.kind === "model_request") {
+    return {
+      actor: "HARNESS",
+      title: `Send context for iteration ${event.iteration}`,
+      summary: `${detail.message_count ?? "?"} messages · ${detail.tool_definition_count ?? "?"} capability contracts`,
+    };
+  }
+  if (event.kind === "model_response") {
+    return {
+      actor: "MODEL",
+      title: detail.finish_reason === "tool_calls" ? "Propose a tool call" : "Return a final answer",
+      summary: `${detail.tool_call_count ?? 0} call(s) · ${event.usage?.prompt_tokens ?? 0} prompt tokens`,
+    };
+  }
+  if (event.kind === "tool_request") {
+    const action = detail.action || detail.path || event.tool || "request";
+    return {
+      actor: "POLICY",
+      title: `Authorize ${event.tool || "tool"}`,
+      summary: `${action} · correlation ${event.tool_call_id || "n/a"}`,
+    };
+  }
+  if (event.kind === "tool_result") {
+    const data = detail.data || {};
+    const result = Number.isInteger(data.exit_code)
+      ? `exit ${data.exit_code}${data.timed_out ? " · timed out" : ""}`
+      : data.path || `${data.bytes_written ?? data.bytes ?? 0} bytes`;
+    return {
+      actor: "TOOL",
+      title: detail.ok === false ? "Return a structured failure" : `Observe ${event.tool || "result"}`,
+      summary: `${result} · ${event.elapsed_ms ?? 0} ms elapsed`,
+    };
+  }
+  return {
+    actor: "LOOP",
+    title: event.kind.replaceAll("_", " "),
+    summary: `Iteration ${event.iteration ?? "–"} · ${event.elapsed_ms ?? 0} ms`,
+  };
+}
+
+function traceExplorerTemplate(location = "home") {
+  const trace = courseData.repairTrace || [];
+  const index = Math.min(state.traceIndex, Math.max(0, trace.length - 1));
+  const event = trace[index] || { kind: "empty", detail: "{}" };
+  const presentation = tracePresentation(event);
+  const detail = parseDetail(event);
+  const windowStart = Math.max(0, Math.min(index - 2, trace.length - 5));
+  const visible = trace.slice(windowStart, windowStart + 5);
+
+  return `
+    <div class="trace-explorer" data-trace-location="${location}">
+      <div class="trace-rail" aria-label="Repair trace events">
+        ${visible
+          .map((item, offset) => {
+            const absoluteIndex = windowStart + offset;
+            const itemPresentation = tracePresentation(item);
+            return `<button type="button" class="trace-event ${absoluteIndex === index ? "is-active" : ""}" data-action="set-trace" data-index="${absoluteIndex}">
+              <span>${String(absoluteIndex + 1).padStart(2, "0")}</span>
+              <strong>${escapeHtml(itemPresentation.actor)}</strong>
+              <small>${escapeHtml(itemPresentation.title)}</small>
+            </button>`;
+          })
+          .join("")}
+      </div>
+      <div class="trace-inspector">
+        <div class="trace-inspector-topline"><span>${escapeHtml(presentation.actor)}</span><span>event ${index + 1}/${trace.length}</span></div>
+        <h3>${escapeHtml(presentation.title)}</h3>
+        <p>${escapeHtml(presentation.summary)}</p>
+        <pre><code>${escapeHtml(JSON.stringify(detail, null, 2).slice(0, 1800))}</code></pre>
+        <div class="trace-controls">
+          <button type="button" data-action="trace-previous" ${index === 0 ? "disabled" : ""}>← Previous</button>
+          <div class="trace-progress"><span style="width:${trace.length ? ((index + 1) / trace.length) * 100 : 0}%"></span></div>
+          <button type="button" data-action="trace-next" ${index >= trace.length - 1 ? "disabled" : ""}>Next event →</button>
+        </div>
+      </div>
+    </div>`;
+}
+
 function homeTemplate() {
-  const completeCount = state.completed.size;
+  const next = nextActivity();
+  const activeStage = mechanismStages[state.mechanismStage];
   return `
     <div class="home-page">
       <section class="hero">
         <div class="hero-copy">
-          <span class="eyebrow">One day · C++17 · framework-free</span>
-          <h1>Build the loop.<br /><em>See every decision.</em></h1>
-          <p class="hero-lede">Create a coding agent from first principles: messages, tool contracts, guarded execution, feedback, evaluation, and a capstone self-change you can actually verify.</p>
+          <span class="eyebrow">C++17 · deterministic first · agent under glass</span>
+          <h1>Build an agent.<br /><em>Interrogate every move.</em></h1>
+          <p class="hero-lede">A field course for experienced C++ developers who want to understand the machinery beneath coding assistants: what the model sees, who grants authority, why the loop continues, and what evidence makes a repair real.</p>
+          <div class="mode-switch" role="group" aria-label="Choose learning mode">
+            <button type="button" class="${state.mode === "workshop" ? "is-active" : ""}" data-action="select-mode" data-mode="workshop"><strong>One-day workshop</strong><small>390 min · instructor led</small></button>
+            <button type="button" class="${state.mode === "self-paced" ? "is-active" : ""}" data-action="select-mode" data-mode="self-paced"><strong>Self-paced field course</strong><small>11–13 hr · full depth</small></button>
+          </div>
           <div class="hero-actions">
-            <a class="button button-primary" href="${chapterHref(completeCount < 9 ? Math.min(completeCount, 8) : 0)}">${completeCount ? "Continue learning" : "Start chapter 0"} <span>→</span></a>
-            <a class="button button-secondary" href="${repositoryUrl}" target="_blank" rel="noreferrer">Explore the code ↗</a>
+            <a class="button button-primary" href="${chapterHref(next.chapterId, next.kind)}">${state.completedActivities.size ? "Continue the mission" : "Enter chapter 0"} <span>→</span></a>
+            <a class="button button-secondary" href="#/resources/learner-path">See how the course works</a>
           </div>
           <div class="hero-facts" aria-label="Course facts">
-            <span><strong>9</strong> chapters</span>
-            <span><strong>9</strong> guided labs</span>
-            <span><strong>0</strong> keys required</span>
+            <span><strong>9</strong> system upgrades</span>
+            <span><strong>36</strong> evidence steps</span>
+            <span><strong>0</strong> required API keys</span>
           </div>
         </div>
-        <div class="terminal-figure" aria-label="Example agent execution trace">
-          <div class="terminal-bar"><span></span><span></span><span></span><small>repair-run.trace</small></div>
-          <div class="terminal-body">
-            <div class="trace-line"><span class="trace-index">01</span><span class="trace-model">MODEL</span><code>request build()</code></div>
-            <div class="trace-line"><span class="trace-index">02</span><span class="trace-policy">POLICY</span><code>workspace ✓ command ✓</code></div>
-            <div class="trace-line"><span class="trace-index">03</span><span class="trace-tool">TOOL</span><code>exit 1 · expected ';'</code></div>
-            <div class="trace-line"><span class="trace-index">04</span><span class="trace-model">MODEL</span><code>read_file(src/calculator.cpp)</code></div>
-            <div class="trace-line"><span class="trace-index">05</span><span class="trace-tool">TOOL</span><code>42 lines returned</code></div>
-            <div class="trace-line trace-active"><span class="trace-index">06</span><span class="trace-model">MODEL</span><code>write minimal patch...</code></div>
+        <div class="system-card" aria-label="Course build target">
+          <div class="system-card-header"><span>BUILD TARGET</span><small>course_agent.cpp</small></div>
+          <div class="system-orbit">
+            <div class="orbit-node orbit-model"><span>MODEL</span><strong>proposes</strong></div>
+            <div class="orbit-node orbit-harness"><span>HARNESS</span><strong>decides</strong></div>
+            <div class="orbit-node orbit-tools"><span>TOOLS</span><strong>observe + act</strong></div>
+            <div class="orbit-pulse"></div>
           </div>
-          <div class="terminal-caption"><span class="status-dot"></span> Nothing happens offstage.</div>
+          <div class="system-readout">
+            <span><small>CAPABILITY</small><strong>read · write · build · test</strong></span>
+            <span><small>CONTROL</small><strong>schema · policy · budget · eval</strong></span>
+            <span><small>FINAL PROOF</small><strong>fresh passing verification</strong></span>
+          </div>
+          <div class="terminal-caption"><span class="status-dot"></span> The model proposes. Your C++ harness owns every effect.</div>
         </div>
       </section>
 
       <section class="promise-strip" aria-label="Course approach">
-        <div><span>01</span><strong>Understand</strong><p>Trace the exact boundary between model, harness, and machine.</p></div>
-        <div><span>02</span><strong>Implement</strong><p>Build one protocol layer at a time in a compact C++ codebase.</p></div>
-        <div><span>03</span><strong>Prove</strong><p>Use deterministic failures, current tests, and structured evidence.</p></div>
+        <div><span>01</span><strong>Predict</strong><p>Commit to a mental model before revealing the trace.</p></div>
+        <div><span>02</span><strong>Build</strong><p>Add one capability and one control to a compact C++ harness.</p></div>
+        <div><span>03</span><strong>Prove</strong><p>Earn completion with tests, correlated results, and fresh evidence.</p></div>
+      </section>
+
+      <section class="section-block mechanism-section">
+        <div class="section-heading">
+          <div><span class="eyebrow">Interactive mental model</span><h2>Four boundaries. No magic jump.</h2></div>
+          <p>Select a stage to see who owns the data, the decision, and the authority. This responsibility map is the spine of all nine chapters.</p>
+        </div>
+        <div class="mechanism-lab">
+          <div class="mechanism-stage-list" role="tablist" aria-label="Agent mechanism stages">
+            ${mechanismStages
+              .map(
+                (stage, index) => `<button type="button" role="tab" aria-selected="${index === state.mechanismStage}" class="${index === state.mechanismStage ? "is-active" : ""}" data-action="set-mechanism-stage" data-index="${index}"><span>0${index + 1}</span><strong>${escapeHtml(stage.label)}</strong></button>`,
+              )
+              .join("")}
+          </div>
+          <div class="mechanism-stage-detail" role="tabpanel">
+            <span class="eyebrow">${escapeHtml(activeStage.boundary)}</span>
+            <h3>${escapeHtml(activeStage.title)}</h3>
+            <p>${escapeHtml(activeStage.copy)}</p>
+            <div class="boundary-meter"><span style="width:${25 * (state.mechanismStage + 1)}%"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-block trace-section">
+        <div class="section-heading">
+          <div><span class="eyebrow">Real deterministic evidence</span><h2>Scrub through a repair run.</h2></div>
+          <p>This is not a staged animation. Every event comes from the tested C++ reference executable as it finds a compile defect, repairs it, discovers a behavioral failure, and verifies the second fix.</p>
+        </div>
+        ${traceExplorerTemplate("home")}
       </section>
 
       <section class="section-block journey-section">
         <div class="section-heading">
-          <div><span class="eyebrow">The learning path</span><h2>Nine chapters. One working harness.</h2></div>
-          <p>Each step adds one capability and one control. Lessons explain the contract; labs make it concrete; exercises test the reasoning.</p>
+          <div><span class="eyebrow">The build campaign</span><h2>Nine system upgrades. One governed agent.</h2></div>
+          <p>Every chapter begins with a failure and ends with evidence. Complete the lesson, lab, challenge, and checkpoint to close each mission.</p>
         </div>
         <div class="journey-list">
           ${courseData.chapters
-            .map(
-              (chapter) => `
+            .map((chapter) => {
+              const progress = chapterProgress(chapter.id);
+              const complete = chapterComplete(chapter.id);
+              return `
               <a class="journey-row" href="${chapterHref(chapter.id)}">
-                <span class="journey-number ${state.completed.has(chapter.id) ? "is-complete" : ""}">${state.completed.has(chapter.id) ? "✓" : String(chapter.id).padStart(2, "0")}</span>
+                <span class="journey-number ${complete ? "is-complete" : ""}">${complete ? "✓" : String(chapter.id).padStart(2, "0")}</span>
                 <span class="journey-name"><small>${escapeHtml(chapter.eyebrow)}</small><strong>${escapeHtml(chapter.shortTitle)}</strong></span>
-                <span class="journey-outcome">${escapeHtml(chapter.outcome)}</span>
-                <span class="journey-time">${chapter.time} min</span>
+                <span class="journey-outcome"><strong>${escapeHtml(chapter.mission)}</strong><small>${escapeHtml(chapter.upgrade)}</small></span>
+                <span class="journey-time">${progress}/4 · ${displayTime(chapter)} min</span>
                 <span class="journey-arrow">→</span>
-              </a>`,
-            )
+              </a>`;
+            })
             .join("")}
         </div>
       </section>
 
-      <section class="section-block mechanism-section">
-        <div class="section-heading compact-heading">
-          <div><span class="eyebrow">The mechanism</span><h2>A feedback system—not a magic box.</h2></div>
-          <p>The harness owns every transition. The model proposes; policy decides; tools return evidence; the next decision sees that evidence.</p>
-        </div>
-        <div class="mechanism-flow" aria-label="Agent feedback loop">
-          <div class="flow-node"><span>1</span><strong>Goal + history</strong><small>Causal input</small></div>
-          <div class="flow-arrow">→</div>
-          <div class="flow-node"><span>2</span><strong>Model proposal</strong><small>Text or tool call</small></div>
-          <div class="flow-arrow">→</div>
-          <div class="flow-node flow-node-accent"><span>3</span><strong>Policy gate</strong><small>Validate + authorize</small></div>
-          <div class="flow-arrow">→</div>
-          <div class="flow-node"><span>4</span><strong>Local action</strong><small>Read, write, build</small></div>
-          <div class="flow-return">↖ <span>correlated result</span> ↙</div>
-        </div>
-      </section>
-
       <section class="closing-cta">
-        <div><span class="eyebrow">Ready when you are</span><h2>Start with evidence, not an API key.</h2></div>
-        <a class="button button-primary" href="${chapterHref(0)}">Prove the environment <span>→</span></a>
+        <div><span class="eyebrow">Your first mission</span><h2>Make the machine observable before making it autonomous.</h2></div>
+        <a class="button button-primary" href="${chapterHref(0)}">Run the preflight <span>→</span></a>
       </section>
     </div>
   `;
@@ -337,32 +527,49 @@ function chapterTemplate(chapter, kind) {
   const document = chapter.documents[kind];
   const previous = courseData.chapters[chapter.id - 1];
   const next = courseData.chapters[chapter.id + 1];
-  const complete = state.completed.has(chapter.id);
+  const done = activityComplete(chapter.id, kind);
+  const progress = chapterProgress(chapter.id);
+  const activityDescriptions = {
+    lesson: "Explain the boundary and predict the chapter failure before touching code.",
+    lab: "Use the reference harness and disposable fixture to produce the required artifact.",
+    exercise: "Read the trace, defend the mechanism, then reveal the answer key.",
+    checkpoint: "Run the release gate and record evidence newer than the latest change.",
+  };
 
   return `
     <div class="chapter-page">
       <header class="chapter-header">
-        <div class="chapter-kicker"><span>Chapter ${String(chapter.id).padStart(2, "0")}</span><span>${escapeHtml(chapter.eyebrow)}</span><span>${chapter.time} minutes</span></div>
+        <div class="chapter-kicker"><span>Mission ${String(chapter.id).padStart(2, "0")}</span><span>${escapeHtml(chapter.eyebrow)}</span><span>${displayTime(chapter)} minutes · ${state.mode === "workshop" ? "workshop" : "self-paced"}</span></div>
         <h1>${escapeHtml(chapter.shortTitle)}</h1>
-        <p>${escapeHtml(chapter.outcome)}</p>
+        <p>${escapeHtml(chapter.mission)}</p>
         <div class="chapter-tools">
-          <button class="completion-button ${complete ? "is-complete" : ""}" type="button" data-action="toggle-complete" data-chapter="${chapter.id}">
-            <span>${complete ? "✓" : "○"}</span>${complete ? "Chapter complete" : "Mark chapter complete"}
-          </button>
+          <span class="mission-progress"><strong>${progress}/4</strong> evidence steps complete</span>
           <a href="${sourceUrl(document.path)}" target="_blank" rel="noreferrer">View source ↗</a>
         </div>
       </header>
+      <section class="mission-brief" aria-label="Chapter mission brief">
+        <div><span>System upgrade</span><strong>${escapeHtml(chapter.upgrade)}</strong></div>
+        <div><span>Failure to defeat</span><strong>${escapeHtml(chapter.failure)}</strong></div>
+        <div><span>Proof to collect</span><strong>${escapeHtml(chapter.proof)}</strong></div>
+      </section>
       <nav class="document-tabs" aria-label="Chapter materials">
         ${documentKinds
           .map(
             (tabKind) => `<a href="${chapterHref(chapter.id, tabKind)}" class="${kind === tabKind ? "is-current" : ""}" ${kind === tabKind ? 'aria-current="page"' : ""}>
-              <span>${kindLabels[tabKind]}</span><small>${tabKind === "lesson" ? "Read" : tabKind === "lab" ? "Build" : tabKind === "exercise" ? "Check" : "State"}</small>
+              <span>${activityComplete(chapter.id, tabKind) ? "✓ " : ""}${kindLabels[tabKind]}</span><small>${kindActions[tabKind]}</small>
             </a>`,
           )
           .join("")}
       </nav>
+      ${chapter.id === 5 && (kind === "lesson" || kind === "lab") ? `<section class="chapter-trace-lab"><div class="chapter-trace-heading"><span class="eyebrow">Flight recorder</span><h2>Reconstruct the bounded loop</h2><p>Step through the executable trace while reading this chapter. Identify what caused each transition and what evidence justified continuing.</p></div>${traceExplorerTemplate("chapter")}</section>` : ""}
       <article class="article-card" id="article-content">
         <div class="article-label"><span>${kindLabels[kind]}</span><span>${escapeHtml(document.title)}</span></div>
+        <div class="activity-brief">
+          <div><span class="eyebrow">${kindActions[kind]} · evidence step ${documentKinds.indexOf(kind) + 1} of 4</span><p>${escapeHtml(activityDescriptions[kind])}</p></div>
+          <button class="completion-button ${done ? "is-complete" : ""}" type="button" data-action="toggle-activity" data-chapter="${chapter.id}" data-kind="${kind}">
+            <span>${done ? "✓" : "○"}</span>${done ? "Evidence recorded" : "Record this evidence"}
+          </button>
+        </div>
         <div id="markdown-mount"></div>
       </article>
       <nav class="chapter-pagination" aria-label="Chapter pagination">
@@ -564,13 +771,42 @@ document.addEventListener("click", async (event) => {
     localStorage.setItem("agent-lab-theme", state.theme);
   }
 
-  if (action === "toggle-complete") {
+  if (action === "select-mode") {
+    state.mode = trigger.dataset.mode === "self-paced" ? "self-paced" : "workshop";
+    localStorage.setItem("agent-lab-mode", state.mode);
+    renderRoute();
+    showToast(state.mode === "workshop" ? "One-day workshop selected" : "Self-paced field course selected");
+  }
+
+  if (action === "set-mechanism-stage") {
+    state.mechanismStage = Number(trigger.dataset.index);
+    renderRoute();
+  }
+
+  if (action === "set-trace") {
+    state.traceIndex = Number(trigger.dataset.index);
+    renderRoute();
+  }
+
+  if (action === "trace-previous") {
+    state.traceIndex = Math.max(0, state.traceIndex - 1);
+    renderRoute();
+  }
+
+  if (action === "trace-next") {
+    state.traceIndex = Math.min(courseData.repairTrace.length - 1, state.traceIndex + 1);
+    renderRoute();
+  }
+
+  if (action === "toggle-activity") {
     const chapterId = Number(trigger.dataset.chapter);
-    if (state.completed.has(chapterId)) state.completed.delete(chapterId);
-    else state.completed.add(chapterId);
+    const kind = trigger.dataset.kind;
+    const key = activityKey(chapterId, kind);
+    if (state.completedActivities.has(key)) state.completedActivities.delete(key);
+    else state.completedActivities.add(key);
     persistProgress();
     renderRoute();
-    showToast(state.completed.has(chapterId) ? "Chapter marked complete" : "Chapter reopened");
+    showToast(state.completedActivities.has(key) ? "Evidence step recorded" : "Evidence step reopened");
   }
 
   if (action === "copy-code") {

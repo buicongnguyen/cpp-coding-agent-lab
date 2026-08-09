@@ -4,7 +4,7 @@ Last verified: 2026-08-08
 Class time: 60 minutes  
 Checkpoint: `04_tool_dispatch`
 
-## Main ideas reviewed
+## What you'll learn and prove
 
 | Main idea | Clearest formulation | Proof required |
 |---|---|---|

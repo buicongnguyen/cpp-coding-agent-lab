@@ -4,7 +4,7 @@ Last verified: 2026-08-08
 Class time: 40 minutes  
 Checkpoint: `01_messages`
 
-## Main ideas reviewed
+## What you'll learn and prove
 
 | Main idea | Clearest formulation | Common confusion to remove |
 |---|---|---|

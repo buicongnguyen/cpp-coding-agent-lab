@@ -4,7 +4,7 @@ Last verified: 2026-08-08
 Class time: 30 minutes  
 Checkpoint: `07_safe_agent`
 
-## Main ideas reviewed
+## What you'll learn and prove
 
 | Main idea | Clearest formulation | Evidence of control |
 |---|---|---|

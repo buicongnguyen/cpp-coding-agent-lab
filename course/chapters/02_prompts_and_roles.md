@@ -4,7 +4,7 @@ Last verified: 2026-08-08
 Class time: 40 minutes  
 Checkpoint: `02_prompt_lab`
 
-## Main ideas reviewed
+## What you'll learn and prove
 
 | Main idea | Clearest formulation | How it is tested |
 |---|---|---|

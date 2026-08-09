@@ -4,7 +4,7 @@ Last verified: 2026-08-08
 Class time: 25 minutes  
 Checkpoint: `00_api_smoke`
 
-## Main ideas reviewed
+## What you'll learn and prove
 
 | Main idea | Clearest formulation | What students should verify |
 |---|---|---|

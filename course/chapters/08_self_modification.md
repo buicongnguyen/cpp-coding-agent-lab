@@ -4,7 +4,7 @@ Last verified: 2026-08-08
 Class time: 50 minutes  
 Checkpoint: `08_capstone_solution`
 
-## Main ideas reviewed
+## What you'll learn and prove
 
 | Main idea | Clearest formulation | Completion evidence |
 |---|---|---|

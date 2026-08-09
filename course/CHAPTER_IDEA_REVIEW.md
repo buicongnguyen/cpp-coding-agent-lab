@@ -12,7 +12,7 @@ Each main idea was checked for four qualities:
 3. **Mechanism:** does it show the message, state transition, C++ boundary, or evidence flow that makes the idea real?
 4. **Verification:** is there an observable test, trace property, or review question?
 
-Current claims were compared with primary provider, standards, security, toolchain, and research documentation. Every manuscript now opens with a `Main ideas reviewed` table and contains a worked clarification tied to its existing lab.
+Current claims were compared with primary provider, standards, security, toolchain, and research documentation. Every manuscript now opens with a learner-facing `What you'll learn and prove` table and contains a worked clarification tied to its existing lab.
 
 ## Chapter 0 — Environment, mental model, and preflight
 
