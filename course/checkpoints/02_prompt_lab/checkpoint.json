@@ -20,7 +20,7 @@
     "test": null
   },
   "starter": {
-    "sha256": "a31bbc336e26be5ba31bb06436d8b9524b955c8cfe9861c5d7708387c00d0135",
+    "sha256": "75d95900790a646d592ccda91833e34af792bb7649353091d6a4fcaa18b98cfa",
     "lockedFeatures": [
       "system_prompt",
       "tool_schema",
@@ -32,7 +32,7 @@
     ]
   },
   "solution": {
-    "sha256": "62a464a5a161dd1263a2960d523d36b639d8b426cb7f45b48978d0332b42a945",
+    "sha256": "93dcf198184b69ef47b2dd6aab1dfb29adea59aeecb52017bef3c3090b807615",
     "lockedFeatures": [
       "tool_schema",
       "tool_dispatch",

@@ -21,7 +21,7 @@
     "test": "ctest --test-dir build -C Debug -L checkpoint-06 --output-on-failure"
   },
   "starter": {
-    "sha256": "581b809e05ed8017467498ae7d1550abc868fa14d8dfe9f64858c52c404b1d94",
+    "sha256": "7dca6a159668c9f5d3335f584688b74683cdc408de17895e013e1ab4908eba6c",
     "lockedFeatures": [
       "trace_and_limits",
       "canonical_safety",
@@ -29,7 +29,7 @@
     ]
   },
   "solution": {
-    "sha256": "977f23ba203c0656717010f25d0bdcfb0d4eb7e1464261f526fe3ae8aabca993",
+    "sha256": "db84eaef4d986862da25e432f3c047985d0b752380ef5cc30739633dbb9b9a5e",
     "lockedFeatures": [
       "canonical_safety",
       "list_files"
@@ -38,11 +38,11 @@
   },
   "answerDiff": {
     "path": "answer.patch",
-    "sha256": "49f7369d3457ffd476bdd94a1379a7be1bd4bd342b801b9792e3531c4cce0050"
+    "sha256": "1558747ab03ad4cdbcb3c6ceb9944858edc0835f7b023dd682ce9763148cd1e6"
   },
   "previousCheckpointDiff": {
     "path": "from_previous.patch",
-    "sha256": "49f7369d3457ffd476bdd94a1379a7be1bd4bd342b801b9792e3531c4cce0050",
+    "sha256": "1558747ab03ad4cdbcb3c6ceb9944858edc0835f7b023dd682ce9763148cd1e6",
     "from": "05_agent_loop"
   }
 }

@@ -21,7 +21,7 @@
     "test": "ctest --test-dir build -C Debug -L checkpoint-00 --output-on-failure"
   },
   "starter": {
-    "sha256": "c95de5612d30f3685f916a76626132794dd57a40e68f3ba474c7a7f3934956dc",
+    "sha256": "a2bbf57e0acab49cde34fe2d528839ce66e9641dd22f6ccf7292786023540358",
     "lockedFeatures": [
       "api_smoke",
       "messages",
@@ -35,7 +35,7 @@
     ]
   },
   "solution": {
-    "sha256": "357d42781ed1df08e51b64ddc2ca0b682b211c0b7daf9e59cd402f66d626e77a",
+    "sha256": "13fddaa9aab623760e9ad50f5c406011e4adb765fa51c74039690d26d29e4b38",
     "lockedFeatures": [
       "messages",
       "system_prompt",

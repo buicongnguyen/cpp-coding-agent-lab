@@ -331,7 +331,11 @@ Json ToolDispatcher::run_command(const Json& arguments) const {
     if (action == "configure") {
         request.executable = environment_or("CMAKE_COMMAND", "cmake");
         request.arguments = {"-S", ".", "-B", "build"};
+#ifdef _WIN32
+        const std::string generator = environment_or("COURSE_CMAKE_GENERATOR", "NMake Makefiles");
+#else
         const std::string generator = environment_or("COURSE_CMAKE_GENERATOR", "");
+#endif
         const std::string make_program = environment_or("COURSE_CMAKE_MAKE_PROGRAM", "");
         const std::string compiler = environment_or("COURSE_CXX_COMPILER", "");
         if (!generator.empty()) {

@@ -53,6 +53,9 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
+      - name: Set up MSVC developer environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Install Linux HTTP dependency
         if: runner.os == 'Linux'
         run: |

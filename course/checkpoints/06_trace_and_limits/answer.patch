@@ -7,16 +7,16 @@
 +    result["iteration"] = event.iteration;
      result["kind"] = event.kind;
      result["detail"] = event.detail;
-+    result["elapsed_ms"] = event.elapsed_ms;
++    result["elapsed_ms"] = static_cast<double>(event.elapsed_ms);
 +    if (!event.tool_name.empty()) result["tool"] = event.tool_name;
 +    if (!event.tool_call_id.empty()) result["tool_call_id"] = event.tool_call_id;
 +    if (!event.run_id.empty()) result["run_id"] = event.run_id;
-+    if (event.timestamp_ms != 0) result["timestamp_ms"] = event.timestamp_ms;
++    if (event.timestamp_ms != 0) result["timestamp_ms"] = static_cast<double>(event.timestamp_ms);
 +    if (!event.model.empty()) result["model"] = event.model;
 +    if (!event.finish_reason.empty()) result["finish_reason"] = event.finish_reason;
 +    if (!event.authorization.empty()) result["authorization"] = event.authorization;
 +    if (!event.status.empty()) result["status"] = event.status;
-+    result["duration_ms"] = event.duration_ms;
++    result["duration_ms"] = static_cast<double>(event.duration_ms);
 +
 +    Json usage = Json::object();
 +    usage["prompt_tokens"] = event.usage.prompt_tokens;

@@ -21,13 +21,13 @@
     "test": "ctest --test-dir build -C Debug -L checkpoint-08 --output-on-failure"
   },
   "starter": {
-    "sha256": "3af935e617baa8a813f60ec1bd862c2ac169c9d95b2436f380205ad94b8bd3f9",
+    "sha256": "3af77c09d55f9618209f36f744cda12080a79a765cc14d64e5a7017e3ef65f8c",
     "lockedFeatures": [
       "list_files"
     ]
   },
   "solution": {
-    "sha256": "0b6259fdfd7b4a4fe8bffd1edeed6925dc89d832e9f5a78649015c7f7ed26789",
+    "sha256": "a0641a9dc71e72a2faccdd95aa0312508299fd31de4348b0e4d13fc6de6a0405",
     "lockedFeatures": [],
     "canonicalReference": true
   },

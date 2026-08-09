@@ -21,7 +21,7 @@
     "test": "ctest --test-dir build -C Debug -L checkpoint-03 --output-on-failure"
   },
   "starter": {
-    "sha256": "62a464a5a161dd1263a2960d523d36b639d8b426cb7f45b48978d0332b42a945",
+    "sha256": "93dcf198184b69ef47b2dd6aab1dfb29adea59aeecb52017bef3c3090b807615",
     "lockedFeatures": [
       "tool_schema",
       "tool_dispatch",
@@ -32,7 +32,7 @@
     ]
   },
   "solution": {
-    "sha256": "db39630d8cba12b9b5573fbf829d910de05993ab09e49c839ad6fb04b4348c9e",
+    "sha256": "892913785cf2034c40f7e1025e9b06af6797d21efa6ad4919e6f0b87a59d50e1",
     "lockedFeatures": [
       "tool_dispatch",
       "agent_loop",

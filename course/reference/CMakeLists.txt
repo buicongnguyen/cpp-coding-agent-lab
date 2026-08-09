@@ -73,11 +73,21 @@ foreach(eval_id IN ITEMS E1 E2 E3 E4 E5 E6 E7)
     set_tests_properties(eval-${eval_id} PROPERTIES LABELS "evaluation")
 endforeach()
 
+set(course_nested_generator "${CMAKE_GENERATOR}")
+set(course_nested_make_program "${CMAKE_MAKE_PROGRAM}")
+if(WIN32)
+    find_program(course_ninja_program NAMES ninja ninja.exe)
+    if(course_ninja_program)
+        set(course_nested_generator "Ninja")
+        set(course_nested_make_program "${course_ninja_program}")
+    endif()
+endif()
+
 set(course_test_environment
     "CMAKE_COMMAND=${CMAKE_COMMAND}"
     "CTEST_COMMAND=${CMAKE_CTEST_COMMAND}"
-    "COURSE_CMAKE_GENERATOR=${CMAKE_GENERATOR}"
-    "COURSE_CMAKE_MAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}"
+    "COURSE_CMAKE_GENERATOR=${course_nested_generator}"
+    "COURSE_CMAKE_MAKE_PROGRAM=${course_nested_make_program}"
     "COURSE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
 )
 foreach(environment_name IN ITEMS PATH INCLUDE LIB LIBPATH SYSTEMROOT TEMP TMP)
