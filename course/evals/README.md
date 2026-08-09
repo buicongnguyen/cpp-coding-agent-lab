@@ -1,6 +1,14 @@
 # Deterministic evaluation suite
 
-The release gate is network-free. Run `agent_tests` or CTest from the reference build.
+The release gate is network-free. `cases.json` is executable rather than a descriptive list: each ID maps to a focused assertion in `agent_tests`, and the runner fails when a manifest ID has no implementation.
+
+```powershell
+node course/scripts/run-evals.mjs --build-dir course/reference/build --report course/run/eval-report.json
+```
+
+The report location is intentionally under the ignored `course/run/` directory. Do not commit machine paths or delivery credentials.
+
+`deterministic_baseline_report.json` is the reviewed portable release capture. The runner replaces its build directory with `<BUILD_DIR>` before writing output; regenerate it from a clean reference build whenever E1–E7 or their implementation changes. Ad hoc learner reports still belong under `course/run/`.
 
 ## Cases
 

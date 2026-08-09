@@ -1,0 +1,10 @@
+{
+  "fixture_kind": "authored_deterministic_wire_fixture",
+  "chapter": 8,
+  "captured_live": false,
+  "purpose": "Demonstrate only isolation and review, not a fabricated completed capstone.",
+  "request": {"body": {"model": "scripted/course-model", "messages": [{"role": "system", "content": "Work only in the isolated copy. Inspect before edits. Stop after a policy denial or budget. Completion requires post-write build/tests and diff review."}, {"role": "user", "content": "Inspect the tool registry and propose the smallest list_files capability slice; do not edit yet."}]}},
+  "response": {"body": {"model": "scripted/course-model", "choices": [{"message": {"role": "assistant", "content": "", "tool_calls": [{"id": "inspect_fixture_08", "type": "function", "function": {"name": "read_file", "arguments": "{\"path\":\"include/course_agent/tool_dispatcher.hpp\"}"}}]}, "finish_reason": "tool_calls"}]}},
+  "completion_status": "not_attempted_by_this_fixture",
+  "review_inputs": ["course/assets/chapter_08/CAPSTONE_CONTRACT.md", "course/assets/chapter_08/CAPSTONE_REVIEW.md"]
+}

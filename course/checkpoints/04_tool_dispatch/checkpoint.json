@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "order": 4,
+  "id": "04_tool_dispatch",
+  "title": "Tool dispatcher",
+  "feature": "tool_dispatch",
+  "testLabel": "checkpoint-04",
+  "focusFiles": [
+    "src/tool_dispatcher.cpp",
+    "src/process_posix.cpp",
+    "src/process_windows.cpp"
+  ],
+  "releaseGate": "Known read/write/command actions work while traversal and unknown actions fail closed.",
+  "materialize": {
+    "both": "node course/scripts/checkpoints.mjs materialize 04_tool_dispatch",
+    "starter": "node course/scripts/checkpoints.mjs materialize 04_tool_dispatch starter",
+    "solution": "node course/scripts/checkpoints.mjs materialize 04_tool_dispatch solution"
+  },
+  "verify": {
+    "configure": "cmake -S . -B build",
+    "build": "cmake --build build --config Debug",
+    "test": "ctest --test-dir build -C Debug -L checkpoint-04 --output-on-failure"
+  },
+  "starter": {
+    "sha256": "db39630d8cba12b9b5573fbf829d910de05993ab09e49c839ad6fb04b4348c9e",
+    "lockedFeatures": [
+      "tool_dispatch",
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ]
+  },
+  "solution": {
+    "sha256": "64fd161fa5ee2fa1066987b0cb268b9e987ebd68d09da4a0e23aeb73ffd298e2",
+    "lockedFeatures": [
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ],
+    "canonicalReference": false
+  },
+  "answerDiff": {
+    "path": "answer.patch",
+    "sha256": "43db5b92fccd99c9fc4ceab4caa38d5e3b2ba2d3c07da0dbaee2dabe61227aa1"
+  },
+  "previousCheckpointDiff": {
+    "path": "from_previous.patch",
+    "sha256": "43db5b92fccd99c9fc4ceab4caa38d5e3b2ba2d3c07da0dbaee2dabe61227aa1",
+    "from": "03_tool_schema"
+  }
+}

@@ -1,6 +1,6 @@
 # Slide outline 3 — Tool definitions
 
-Last verified: 2026-08-08 | Target: 8 slides
+Last verified: 2026-08-09 | Target: 8 slides
 
 1. **Prediction:** raw `tool_calls` JSON—has anything executed?
 2. **Four objects:** definition → call → execution → correlated result.

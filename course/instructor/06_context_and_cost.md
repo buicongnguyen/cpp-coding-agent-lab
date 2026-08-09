@@ -1,6 +1,6 @@
 # Instructor guide 6 — Context and cost
 
-Last verified: 2026-08-08 | 30 minutes: surprise 4, explain 8, demo 7, lab 9, check 2
+Last verified: 2026-08-09 | 30 minutes: surprise 4, explain 8, demo 7, lab 9, check 2
 
 ## Demonstration script
 
@@ -10,5 +10,7 @@ Last verified: 2026-08-08 | 30 minutes: surprise 4, explain 8, demo 7, lab 9, ch
 4. Show usage/cost fields as reported data; label deterministic usage as synthetic.
 
 Expected branch: live providers may omit or differ in cost detail. Recorded fallback has token counts sufficient for the accounting exercise. If a trace is incomplete, do not interpolate silently; mark the missing field.
+
+Fallback assets: [`06_context_cost.json`](../demos/chapter_fixtures/06_context_cost.json) and [`full_repair_trace.jsonl`](../demos/full_repair_trace.jsonl).
 
 Misconceptions: provider-managed state is infinite memory; compression is lossless; user turns equal billable calls; cached input is free or guaranteed. Preserve raw trace even when proposing prompt compaction.

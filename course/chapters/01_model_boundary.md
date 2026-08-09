@@ -1,6 +1,6 @@
 # Chapter 1 — The “dumb model” problem
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 40 minutes  
 Checkpoint: `01_messages`
 

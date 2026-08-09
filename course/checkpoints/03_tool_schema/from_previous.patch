@@ -1,0 +1,47 @@
+--- a/src/tool_dispatcher.cpp
++++ b/src/tool_dispatcher.cpp
+@@ -138,8 +138,42 @@
+ }
+ 
+ Json ToolDispatcher::definitions() const {
++    Json tools = Json::array();
++
++    Json read_properties = Json::object();
++    read_properties["path"] = string_property("UTF-8 text file path relative to the workshop workspace.");
++    tools.push_back(function_tool(
++        "read_file",
++        "Read a bounded UTF-8 text file inside the workshop workspace. Returns structured success or error data.",
++        std::move(read_properties),
++        required_fields({"path"})));
++
++    Json write_properties = Json::object();
++    write_properties["path"] = string_property("Existing or new text file path relative to the workshop workspace.");
++    write_properties["content"] = string_property("Complete UTF-8 text content to write, within the workshop size limit.");
++    tools.push_back(function_tool(
++        "write_file",
++        "Write bounded UTF-8 text inside the workshop workspace. The parent directory must already exist.",
++        std::move(write_properties),
++        required_fields({"path", "content"})));
++
++    Json command_properties = Json::object();
++    Json action = string_property("Approved build action selected by symbolic name; never a shell command.");
++    Json action_enum = Json::array();
++    action_enum.push_back("configure");
++    action_enum.push_back("build");
++    action_enum.push_back("test");
++    action["enum"] = std::move(action_enum);
++    command_properties["action"] = std::move(action);
++    tools.push_back(function_tool(
++        "run_command",
++        "Run one approved configure, build, or test action in the workspace with a timeout and bounded output.",
++        std::move(command_properties),
++        required_fields({"action"})));
++
++    // list_files is intentionally absent until checkpoint 08.
++
++    return tools;
+-    // TODO checkpoint 03: publish strict schemas for the executable tools.
+-    return Json::array();
+ }
+ 
+ std::filesystem::path ToolDispatcher::resolve_inside_workspace(const std::string& relative_path) const {

@@ -1,0 +1,25 @@
+{
+  "fixture_kind": "authored_deterministic_examples",
+  "not_a_live_capture": true,
+  "case_id": "P1_NEEDS_CONTEXT",
+  "unchanged_user_request": "Fix the bug in my calculator.",
+  "outputs": [
+    {
+      "prompt": "helpful_partner",
+      "assistant": "Please provide the workspace or let me inspect its files and current failing build/test output before I identify a defect."
+    },
+    {
+      "prompt": "grumpy_reviewer",
+      "assistant": "No repository evidence was supplied. A specific diagnosis would be invented; show the relevant files and failing verifier."
+    },
+    {
+      "prompt": "standards_lawyer",
+      "assistant": "There is not yet enough source or diagnostic context to make a C++17 correctness claim. Supply the translation unit and compiler/test evidence."
+    },
+    {
+      "prompt": "evidence_first_agent",
+      "assistant": "Next step: inspect the workspace and run the approved verifier. I will not name a bug or claim completion before that evidence exists."
+    }
+  ],
+  "teaching_note": "These intentionally stable examples support worksheet rehearsal; they do not measure a provider or prove prompt determinism."
+}

@@ -48,12 +48,14 @@ failure → prediction → mechanism → implementation → evidence → reflect
 
 The reference code is an executable map, not an answer to copy blindly. For each lab:
 
-1. Start in a disposable workspace.
-2. Find the files named by the checkpoint manifest.
+1. From the repository root, run `node course/scripts/checkpoints.mjs materialize <checkpoint> starter`; the generated disposable workspace appears under `course/run/checkpoints/`.
+2. Read the checkpoint's `checkpoint.json` and named files before changing them.
 3. Predict which test or trace property should fail before the change.
 4. Implement the smallest vertical slice.
 5. Run the focused check, then the full reference suite.
 6. Compare the result with the canonical implementation only after recording your own reasoning.
+
+Run `node course/scripts/checkpoints.mjs check` whenever the canonical source or checkpoint artifacts change. The website's evidence note is a local learning journal with explicit self-attestation; it does not inspect your filesystem or execute the proof command for you.
 
 ## What “done” means
 

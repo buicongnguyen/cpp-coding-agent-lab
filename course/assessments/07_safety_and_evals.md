@@ -1,6 +1,6 @@
 # Assessment 7 — Safety and evals
 
-Last verified: 2026-08-08
+Last verified: 2026-08-09
 
 ## Questions
 

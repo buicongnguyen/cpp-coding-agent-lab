@@ -1,10 +1,14 @@
 # Lab 4 — Execute and correlate tools safely
 
-Last verified: 2026-08-08 | Time: 42 minutes | Start: `checkpoints/04_tool_dispatch`
+Last verified: 2026-08-09 | Time: 42 minutes | Start: `checkpoints/04_tool_dispatch`
+
+Materialize the learner state from the repository root with `node course/scripts/checkpoints.mjs materialize 04_tool_dispatch starter`; work only in the generated `course/run/checkpoints/04_tool_dispatch/starter` copy.
+
+Configure that copy with `cmake -S . -B build`, build with `cmake --build build --config Debug`, and use `ctest --test-dir build -C Debug -L checkpoint-04 --output-on-failure` as the focused gate.
 
 ## Goal and constraints
 
-Complete a dispatcher for read, write, list, and symbolic build actions. All paths remain inside a disposable workspace. Do not invoke a shell or accept arbitrary command text.
+Complete a dispatcher for read, write, and symbolic configure/build/test actions. All paths remain inside a disposable workspace. Do not invoke a shell or accept arbitrary command text. `list_files` must remain unavailable until the Chapter 8 capstone.
 
 ## Tasks
 
@@ -27,9 +31,9 @@ Complete a dispatcher for read, write, list, and symbolic build actions. All pat
 ## Hints
 
 1. Conceptual: validate shape, semantics, authorization, and execution in that order.
-2. Location: `reference/src/tool_dispatcher.cpp` and platform `process_*.cpp`.
+2. Location: `src/tool_dispatcher.cpp` and the generated copy's platform `src/process_*.cpp`.
 3. Near-solution: map each action to a fixed executable plus argument vector; never concatenate model strings into a command line interpreted by a shell.
 
 ## Stretch
 
-Add an accurate boundary test for `list_files`: exactly the maximum is not truncated; maximum plus one is.
+Add a process-output boundary test that distinguishes a complete result from `truncated:true` without logging beyond the configured limit.

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "order": 8,
+  "id": "08_capstone_solution",
+  "title": "Capstone: list_files",
+  "feature": "list_files",
+  "testLabel": "checkpoint-08",
+  "focusFiles": [
+    "src/tool_dispatcher.cpp",
+    "tests/test_main.cpp"
+  ],
+  "releaseGate": "list_files is schema-exposed, bounded, workspace-confined, and covered by the tool-boundary test.",
+  "materialize": {
+    "both": "node course/scripts/checkpoints.mjs materialize 08_capstone_solution",
+    "starter": "node course/scripts/checkpoints.mjs materialize 08_capstone_solution starter",
+    "solution": "node course/scripts/checkpoints.mjs materialize 08_capstone_solution solution"
+  },
+  "verify": {
+    "configure": "cmake -S . -B build",
+    "build": "cmake --build build --config Debug",
+    "test": "ctest --test-dir build -C Debug -L checkpoint-08 --output-on-failure"
+  },
+  "starter": {
+    "sha256": "3af935e617baa8a813f60ec1bd862c2ac169c9d95b2436f380205ad94b8bd3f9",
+    "lockedFeatures": [
+      "list_files"
+    ]
+  },
+  "solution": {
+    "sha256": "0b6259fdfd7b4a4fe8bffd1edeed6925dc89d832e9f5a78649015c7f7ed26789",
+    "lockedFeatures": [],
+    "canonicalReference": true
+  },
+  "answerDiff": {
+    "path": "answer.patch",
+    "sha256": "003baa6cc2476501c3d394b6e977613b1086901835bf68c3b0a40c5c3ab54114"
+  },
+  "previousCheckpointDiff": {
+    "path": "from_previous.patch",
+    "sha256": "003baa6cc2476501c3d394b6e977613b1086901835bf68c3b0a40c5c3ab54114",
+    "from": "07_safe_agent"
+  }
+}

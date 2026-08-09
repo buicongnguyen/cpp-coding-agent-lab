@@ -11,5 +11,8 @@ Implement parse, validate, authorize, execute, normalize. Never execute model-pr
 
 ## Release gate
 
-Known read/write/list actions succeed, `../` escapes fail, and an unknown command action is rejected.
+Known read/write/command actions succeed, `../` escapes fail, an unknown command action is rejected, and `list_files` remains unavailable.
 
+## Materialize
+
+Run `node course/scripts/checkpoints.mjs materialize 04_tool_dispatch starter` from the repository root. Compare with the `solution` variant only after recording the learner evidence.

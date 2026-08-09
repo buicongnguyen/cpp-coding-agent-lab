@@ -1,0 +1,6 @@
+{"kind":"fixture_metadata","provenance":"authored_deterministic_fixture","captured_from_executable":false,"scenario":"path_escape_denial","expected_stop":"policy_denial","schema_version":2}
+{"kind":"model_response","iteration":1,"detail":{"content":"","finish_reason":"tool_calls","model":"scripted/adversarial-fixture","tool_call_count":1}}
+{"kind":"tool_request","iteration":1,"tool":"read_file","tool_call_id":"escape-1","detail":{"path":"../secret.txt"}}
+{"kind":"policy_decision","iteration":1,"tool":"read_file","tool_call_id":"escape-1","detail":{"allowed":false,"executed":false,"reason":"canonical path is outside <WORKSPACE>"}}
+{"kind":"tool_result","iteration":1,"tool":"read_file","tool_call_id":"escape-1","authorization":"not_evaluated","status":"error","detail":{"ok":false,"data":null,"error":{"code":"path_outside_workspace","message":"Path is outside the workshop workspace"}}}
+{"kind":"stop","iteration":1,"detail":"policy_denial","task_success":false}

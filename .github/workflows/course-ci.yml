@@ -11,11 +11,9 @@ permissions:
 
 jobs:
   website:
-    name: Website build
+    name: Teaching package and website
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: website
+    timeout-minutes: 15
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -25,27 +23,104 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: website/package-lock.json
-      - name: Install website dependencies
-        run: npm ci
-      - name: Validate content and build website
-        run: npm run check
-
-  course:
-    name: C++ reference and teaching package
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-      - name: Install Linux HTTP dependency
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes libcurl4-openssl-dev
+      - name: Verify checkpoint chain
+        run: node course/scripts/checkpoints.mjs check
       - name: Validate teaching materials
         shell: pwsh
         run: ./course/verify_materials.ps1
+      - name: Install website dependencies
+        working-directory: website
+        run: npm ci
+      - name: Validate content and build website
+        working-directory: website
+        run: npm run check
+
+  course:
+    name: Reference (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Install Linux HTTP dependency
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libcurl4-openssl-dev
+      - name: Verify portable checkpoint chain
+        run: node course/scripts/checkpoints.mjs check
+      - name: Materialize all checkpoint workspaces
+        run: node course/scripts/checkpoints.mjs materialize all both
+      - name: Build ten unique checkpoint states
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $checkpointRoot = Join-Path $PWD.Path 'course/run/checkpoints'
+          $buildRoot = Join-Path $PWD.Path 'course/run/ci-builds'
+          $states = @(
+            @{ Name = '00_api_smoke-starter'; Relative = '00_api_smoke/starter' },
+            @{ Name = '00_api_smoke-solution'; Relative = '00_api_smoke/solution'; Labels = @('checkpoint-00') },
+            @{ Name = '01_messages-solution'; Relative = '01_messages/solution'; Labels = @('checkpoint-01') },
+            @{ Name = '02_prompt_lab-solution'; Relative = '02_prompt_lab/solution'; PromptGate = $true },
+            @{ Name = '03_tool_schema-solution'; Relative = '03_tool_schema/solution'; Labels = @('checkpoint-03') },
+            @{ Name = '04_tool_dispatch-solution'; Relative = '04_tool_dispatch/solution'; Labels = @('checkpoint-04') },
+            @{ Name = '05_agent_loop-solution'; Relative = '05_agent_loop/solution'; Labels = @('checkpoint-05'); Tests = @('eval-E2') },
+            @{ Name = '06_trace_and_limits-solution'; Relative = '06_trace_and_limits/solution'; Labels = @('checkpoint-06') },
+            @{ Name = '07_safe_agent-solution'; Relative = '07_safe_agent/solution'; Labels = @('checkpoint-07', 'evaluation') },
+            @{ Name = '08_capstone_solution-solution'; Relative = '08_capstone_solution/solution'; Labels = @('checkpoint-08') }
+          )
+          if ($states.Count -ne 10) { throw "Expected 10 unique checkpoint states, found $($states.Count)." }
+          foreach ($state in $states) {
+            $source = Join-Path $checkpointRoot $state.Relative
+            $build = Join-Path $buildRoot $state.Name
+            if (-not (Test-Path -LiteralPath (Join-Path $source 'CMakeLists.txt') -PathType Leaf)) {
+              throw "Missing materialized checkpoint source: $source"
+            }
+            Write-Host "Configuring $($state.Name)"
+            & cmake -S $source -B $build -DCMAKE_BUILD_TYPE=Release
+            if ($LASTEXITCODE -ne 0) { throw "Configure failed for $($state.Name) with exit code $LASTEXITCODE." }
+            Write-Host "Building $($state.Name)"
+            & cmake --build $build --config Release --parallel 2
+            if ($LASTEXITCODE -ne 0) { throw "Build failed for $($state.Name) with exit code $LASTEXITCODE." }
+
+            if ($state.ContainsKey('Labels')) {
+              foreach ($label in @($state.Labels)) {
+                Write-Host "Testing $($state.Name) label $label"
+                & ctest --test-dir $build -C Release -L "^$([regex]::Escape($label))$" --output-on-failure
+                if ($LASTEXITCODE -ne 0) { throw "CTest label $label failed for $($state.Name) with exit code $LASTEXITCODE." }
+              }
+            }
+            if ($state.ContainsKey('Tests')) {
+              foreach ($test in @($state.Tests)) {
+                Write-Host "Testing $($state.Name) case $test"
+                & ctest --test-dir $build -C Release -R "^$([regex]::Escape($test))$" --output-on-failure
+                if ($LASTEXITCODE -ne 0) { throw "CTest case $test failed for $($state.Name) with exit code $LASTEXITCODE." }
+              }
+            }
+            if ($state.PromptGate) {
+              $promptSource = Get-Content -LiteralPath (Join-Path $source 'src/main.cpp') -Raw
+              foreach ($required in @('inspect evidence', 'supplied workshop workspace', 'run_command actions', 'Do not claim success', 'report the evidence')) {
+                if (-not $promptSource.Contains($required)) { throw "Prompt gate for $($state.Name) lacks: $required" }
+              }
+              if ($promptSource.Contains('TODO checkpoint 02')) { throw "Prompt gate for $($state.Name) still contains its TODO." }
+            }
+          }
       - name: Configure reference project
-        run: cmake -S course/reference -B course/reference/build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S course/reference -B course/reference/build-ci -DCMAKE_BUILD_TYPE=Release
       - name: Build reference project
-        run: cmake --build course/reference/build --config Release --parallel
+        run: cmake --build course/reference/build-ci --config Release --parallel
       - name: Test reference project
-        run: ctest --test-dir course/reference/build -C Release --output-on-failure
+        run: ctest --test-dir course/reference/build-ci -C Release --output-on-failure
+      - name: Run deterministic evaluation manifest
+        run: node course/scripts/run-evals.mjs --build-dir course/reference/build-ci --config Release --report course/reference/build-ci/eval-report.json

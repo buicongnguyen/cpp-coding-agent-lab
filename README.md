@@ -2,7 +2,7 @@
 
 Build a small, inspectable coding-agent harness in modern C++—from the first model request to a bounded tool loop that can diagnose, edit, build, and test a real project.
 
-This repository is an open course package for experienced C++ developers. It combines a mission-based curriculum with hands-on labs, deterministic challenges, executable traces, assessments, a reference implementation, and an interactive learning website inspired by the clear progression and runnable-code philosophy of [Hello Algo](https://github.com/krahets/hello-algo).
+This repository is a course package for experienced C++ developers. It combines a mission-based curriculum with hands-on labs, progressive runnable checkpoints, deterministic challenges, executable traces, assessments, a reference implementation, and an interactive learning website inspired by the clear progression and runnable-code philosophy of [Hello Algo](https://github.com/krahets/hello-algo).
 
 **[Open the interactive course →](https://buicongnguyen.github.io/cpp-coding-agent-lab/)**
 
@@ -39,6 +39,13 @@ ctest --test-dir course/reference/build -C Debug --output-on-failure
 ./course/verify_materials.ps1
 ```
 
+6. Verify the no-drift learner-state chain and run the evaluation suite:
+
+```powershell
+node course/scripts/checkpoints.mjs check
+node course/scripts/run-evals.mjs --build-dir course/reference/build
+```
+
 For the complete instructor delivery map, see [course/CURRICULUM_INDEX.md](course/CURRICULUM_INDEX.md).
 
 ## Course map
@@ -62,12 +69,14 @@ course/
   chapters/       lesson manuscripts with current web research
   labs/           student lab handouts
   assessments/    exercises, answer keys, and executable checks
-  checkpoints/    cumulative learner-state manifests
+  checkpoints/    generated runnable starters, solutions, and reviewed diffs
   reference/      canonical C++17 agent harness and tests
   fixture/        broken and solved CMake projects
-  evals/          deterministic evaluation cases
+  evals/          executable deterministic evaluation cases E1–E7
   instructor/     teaching runbooks and recovery notes
-  slides/         concise slide outlines
+  slides/         70-slide PowerPoint deck, maintainer generation source, and outlines
+  assets/         worksheets, policies, setup, and capstone review forms
+  demos/          provenance-labeled captured and authored traces
 website/          GitHub Pages learning portal
 .github/workflows continuous validation and Pages deployment
 ```
@@ -92,7 +101,7 @@ Live mode is optional. Set `OPENROUTER_API_KEY` and `OPENROUTER_MODEL`, copy the
 
 ## Research and maintenance
 
-The course research was verified on 2026-08-08. Each chapter cites current primary documentation where behavior can change. The maintenance schedule and source ownership are recorded in [course/sources/RESEARCH_INDEX.md](course/sources/RESEARCH_INDEX.md).
+The course research was verified on 2026-08-09. Each chapter cites current primary documentation where behavior can change. The maintenance schedule and source ownership are recorded in [course/sources/RESEARCH_INDEX.md](course/sources/RESEARCH_INDEX.md). Live provider, pricing, and classroom checks remain date-of-delivery gates rather than claims embedded in the deterministic package.
 
 ## Contributing
 

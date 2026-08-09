@@ -1,6 +1,6 @@
 # Slide outline 1 — Model boundary
 
-Last verified: 2026-08-08 | Target: 8 slides
+Last verified: 2026-08-09 | Target: 8 slides
 
 1. **Prediction:** exact contents of a newly created local secret file?
 2. **Request reveal:** highlight that no secret bytes were sent.

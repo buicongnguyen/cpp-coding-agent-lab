@@ -12,3 +12,6 @@ Have the agent inspect its own isolated source copy and implement the capability
 
 The reference tool-boundary test passes, including path escape and output-limit behavior, and the complete reference build remains green.
 
+## Materialize
+
+Run `node course/scripts/checkpoints.mjs materialize 08_capstone_solution starter` from the repository root. Confirm `list_files` is absent in the starter, then inspect `answer.patch` only after producing or reviewing a learner diff. The `solution` variant must match the canonical reference byte-for-byte.

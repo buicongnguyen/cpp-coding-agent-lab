@@ -130,8 +130,8 @@ Json tool_failure(const std::string& code, const std::string& message) {
     return result;
 }
 
-ToolDispatcher::ToolDispatcher(std::filesystem::path workspace, ToolLimits limits)
-    : limits_(limits) {
+ToolDispatcher::ToolDispatcher(std::filesystem::path workspace, ToolLimits limits, ToolPolicy policy)
+    : limits_(limits), policy_(std::move(policy)) {
     if (workspace.empty()) throw std::runtime_error("Workspace path must not be empty");
     workspace_ = std::filesystem::weakly_canonical(std::filesystem::absolute(std::move(workspace)));
     if (!std::filesystem::is_directory(workspace_)) throw std::runtime_error("Workspace is not a directory");
@@ -209,7 +209,31 @@ std::filesystem::path ToolDispatcher::resolve_inside_workspace(const std::string
 Json ToolDispatcher::execute(const ToolCall& call) const {
     try {
         if (call.name == "read_file") return read_file(call.arguments);
-        if (call.name == "write_file") return write_file(call.arguments);
+        if (call.name == "write_file") {
+            require_only(call.arguments, {"path", "content"});
+            const std::filesystem::path path = resolve_inside_workspace(required_string(call.arguments, "path"));
+            const std::string content = required_string(call.arguments, "content");
+            if (content.size() > limits_.max_write_bytes) {
+                return tool_failure("content_too_large", "The requested content exceeds the write limit.");
+            }
+            if (!std::filesystem::is_directory(path.parent_path())) {
+                return tool_failure("parent_missing", "The destination parent directory does not exist.");
+            }
+
+            ToolCall normalized = call;
+            const std::filesystem::path normalized_relative = path.lexically_relative(workspace_);
+            if (normalized_relative.empty() || *normalized_relative.begin() == "..") {
+                return tool_failure("path_outside_workspace", "The normalized write path is outside the workshop workspace.");
+            }
+            normalized.arguments["path"] = normalized_relative.generic_string();
+            if (policy_.require_write_approval && !policy_.approve) {
+                return tool_failure("approval_required", "This write requires an approval decision before execution.");
+            }
+            if (policy_.require_write_approval && !policy_.approve(normalized)) {
+                return tool_failure("approval_denied", "The operator denied this write request.");
+            }
+            return write_file(normalized.arguments);
+        }
         if (call.name == "list_files") return list_files(call.arguments);
         if (call.name == "run_command") return run_command(call.arguments);
         return tool_failure("unknown_tool", "The requested tool is not registered.");
@@ -251,6 +275,8 @@ Json ToolDispatcher::write_file(const Json& arguments) const {
     if (!output) return tool_failure("write_failed", "The destination file could not be opened.");
     output.write(content.data(), static_cast<std::streamsize>(content.size()));
     if (!output) return tool_failure("write_failed", "The complete file content could not be written.");
+    output.close();
+    if (!output) return tool_failure("write_failed", "The destination file could not be finalized.");
 
     Json data = Json::object();
     data["path"] = std::filesystem::relative(path, workspace_).generic_string();
@@ -305,9 +331,18 @@ Json ToolDispatcher::run_command(const Json& arguments) const {
     if (action == "configure") {
         request.executable = environment_or("CMAKE_COMMAND", "cmake");
         request.arguments = {"-S", ".", "-B", "build"};
+        const std::string generator = environment_or("COURSE_CMAKE_GENERATOR", "");
+        const std::string make_program = environment_or("COURSE_CMAKE_MAKE_PROGRAM", "");
+        const std::string compiler = environment_or("COURSE_CXX_COMPILER", "");
+        if (!generator.empty()) {
+            request.arguments.push_back("-G");
+            request.arguments.push_back(generator);
+        }
+        if (!make_program.empty()) request.arguments.push_back("-DCMAKE_MAKE_PROGRAM=" + make_program);
+        if (!compiler.empty()) request.arguments.push_back("-DCMAKE_CXX_COMPILER=" + compiler);
     } else if (action == "build") {
         request.executable = environment_or("CMAKE_COMMAND", "cmake");
-        request.arguments = {"--build", "build", "--config", "Debug"};
+        request.arguments = {"--build", "build", "--config", "Debug", "--clean-first"};
     } else if (action == "test") {
         request.executable = environment_or("CTEST_COMMAND", "ctest");
         request.arguments = {"--test-dir", "build", "-C", "Debug", "--output-on-failure"};

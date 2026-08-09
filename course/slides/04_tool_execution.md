@@ -1,6 +1,6 @@
 # Slide outline 4 — Tool execution
 
-Last verified: 2026-08-08 | Target: 10 slides
+Last verified: 2026-08-09 | Target: 10 slides
 
 1. **Prediction:** valid JSON containing a dangerous command string.
 2. **Capability correction:** arbitrary command → `configure|build|test` enum.

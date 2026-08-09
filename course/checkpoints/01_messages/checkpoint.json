@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "order": 1,
+  "id": "01_messages",
+  "title": "Message history",
+  "feature": "messages",
+  "testLabel": "checkpoint-01",
+  "focusFiles": [
+    "include/course_agent/types.hpp",
+    "src/types.cpp"
+  ],
+  "releaseGate": "Message JSON round trips and every item sent to the model is inspectable.",
+  "materialize": {
+    "both": "node course/scripts/checkpoints.mjs materialize 01_messages",
+    "starter": "node course/scripts/checkpoints.mjs materialize 01_messages starter",
+    "solution": "node course/scripts/checkpoints.mjs materialize 01_messages solution"
+  },
+  "verify": {
+    "configure": "cmake -S . -B build",
+    "build": "cmake --build build --config Debug",
+    "test": "ctest --test-dir build -C Debug -L checkpoint-01 --output-on-failure"
+  },
+  "starter": {
+    "sha256": "357d42781ed1df08e51b64ddc2ca0b682b211c0b7daf9e59cd402f66d626e77a",
+    "lockedFeatures": [
+      "messages",
+      "system_prompt",
+      "tool_schema",
+      "tool_dispatch",
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ]
+  },
+  "solution": {
+    "sha256": "a31bbc336e26be5ba31bb06436d8b9524b955c8cfe9861c5d7708387c00d0135",
+    "lockedFeatures": [
+      "system_prompt",
+      "tool_schema",
+      "tool_dispatch",
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ],
+    "canonicalReference": false
+  },
+  "answerDiff": {
+    "path": "answer.patch",
+    "sha256": "0649b5ce8a3d00da6ca0000ce6bc0dd1b2ea05af428e32c2f6ed52b0b17b4077"
+  },
+  "previousCheckpointDiff": {
+    "path": "from_previous.patch",
+    "sha256": "0649b5ce8a3d00da6ca0000ce6bc0dd1b2ea05af428e32c2f6ed52b0b17b4077",
+    "from": "00_api_smoke"
+  }
+}

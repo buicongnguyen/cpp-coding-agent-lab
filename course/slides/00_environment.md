@@ -1,6 +1,6 @@
 # Slide outline 0 — Environment and preflight
 
-Last verified: 2026-08-08 | Target: 6 slides
+Last verified: 2026-08-09 | Target: 6 slides
 
 1. **Outcome first:** terminal frames from goal → call → tool → test → completion; visual: annotated trace timeline.
 2. **Prediction:** “Which component edited the file?” Learners vote model/harness/tool before reveal.

@@ -17,6 +17,7 @@ struct LoopConfig {
     std::size_t max_tool_calls = 32;
     std::size_t repeated_call_limit = 2;
     std::chrono::seconds wall_clock_limit{300};
+    bool require_build_and_test_evidence = false;
 };
 
 struct TraceEvent {
@@ -27,6 +28,13 @@ struct TraceEvent {
     std::string tool_call_id;
     Usage usage;
     std::uint64_t elapsed_ms = 0;
+    std::string run_id;
+    std::uint64_t timestamp_ms = 0;
+    std::string model;
+    std::string finish_reason;
+    std::string authorization;
+    std::string status;
+    std::uint64_t duration_ms = 0;
 };
 
 using TraceSink = std::function<void(const TraceEvent&)>;

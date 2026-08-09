@@ -1,0 +1,11 @@
+--- a/src/scripted_model_client.cpp
++++ b/src/scripted_model_client.cpp
+@@ -87,7 +87,7 @@
+     std::vector<ModelResponse> responses;
+ 
+     if (name == "smoke") {
++        responses.push_back(final_response("Mock model is ready.", 10));
+-        responses.push_back(final_response("Checkpoint 00 starter: make the smoke response match the release gate.", 10));
+     } else if (name == "compile-fix") {
+         responses.push_back(tool_call("call-1", "run_command", one_argument("action", "configure")));
+         responses.push_back(tool_call("call-2", "run_command", one_argument("action", "build"), 130));

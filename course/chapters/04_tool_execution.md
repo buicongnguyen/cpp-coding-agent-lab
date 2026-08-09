@@ -1,6 +1,6 @@
 # Chapter 4 — Tool execution and result messages
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 60 minutes  
 Checkpoint: `04_tool_dispatch`
 
@@ -21,12 +21,13 @@ The chapter's core transition is from *valid proposal* to *authorized effect*. E
 
 Imagine a perfectly valid call: `run_command({"command":"cmake --build build && upload-secrets"})`. Schema validation could approve the string while the shell interprets multiple actions. The problem is not JSON. It is a capability that is broader than the course goal.
 
-The reference dispatcher exposes four tools:
+The Chapter 4 learner dispatcher exposes three tools:
 
 - `read_file(path)` reads bounded UTF-8 content.
 - `write_file(path, content)` writes a bounded file inside the workspace.
-- `list_files(path)` returns a bounded recursive file list.
 - `run_command(action)` accepts only `configure`, `build`, or `test`.
+
+The canonical final solution also contains `list_files`, but the checkpoint chain keeps its schema and dispatch path locked until Chapter 8. That deliberate absence creates the capstone's vertical change; it is not an undocumented missing feature in this chapter.
 
 The symbolic command enum is one of the course's most important design corrections. It removes shell syntax from model-controlled input. The harness maps each action to a fixed executable and argument vector, starts the process without a shell, enforces timeout/output limits, and reports the exit code.
 
@@ -75,7 +76,7 @@ Canonicalization reduces traversal and symlink mistakes but does not eliminate e
 
 ## Process execution
 
-The Windows implementation calls `CreateProcessW`; the POSIX implementation uses `fork`/`exec`. Neither uses a command shell. Both capture combined output with a byte limit, enforce a deadline, and return `exit_code`, `timed_out`, `truncated`, and output. The Windows environment block is deduplicated case-insensitively and removes `OPENROUTER_API_KEY`; the POSIX environment similarly omits the secret.
+The Windows implementation calls `CreateProcessW`; the POSIX implementation uses `fork`/`exec`. Neither uses a command shell. Both capture combined output with a byte limit, enforce a deadline, and return `exit_code`, `timed_out`, `truncated`, and output. Both construct a small operating-system/toolchain environment allowlist, so the model key and arbitrary parent variables are absent from child processes.
 
 This is still a workshop sandbox, not a security boundary against hostile native build scripts. CMake configuration and tests execute project code. Use a disposable container, VM, or isolated worktree for untrusted repositories and require approval for risky actions in real products.
 
@@ -99,13 +100,13 @@ Before adding autonomy, perform one call by hand:
 
 Repeat with a rejected `../outside.txt` path. A good system prompt may discourage the call, but the lab directly invokes the dispatcher so enforcement is proven independently of model behavior.
 
-## Read, write, and list semantics
+## Read and write semantics
 
 `read_file` resolves the path, confirms a regular permitted file, checks its size, reads bytes, and returns path/content/size. Decide and document encoding. The workshop treats course sources as UTF-8 text; a production tool should distinguish binary files or return an explicit unsupported-type error.
 
 `write_file` is more consequential. Validate the entire content size before opening the destination. Resolve an existing parent for a new file and ensure its canonical target remains inside the workspace. Return bytes written and relative path. The workshop writes the complete file because it keeps the protocol simple; production editing often disallows every symlink component, uses patches, expected-content hashes, atomic replacement, and approval to avoid redirection or concurrent overwrite.
 
-`list_files` returns only regular files, skips symlinks, sorts relative paths, and stops at a configured maximum. Its `truncated` flag is true only if an additional eligible file exists beyond the maximum. An exact-limit directory is complete and must report false. Small details like this matter because later planning depends on whether discovery was exhaustive.
+Repository discovery is deliberately postponed. A broad listing capability changes what the model can observe and needs its own schema, confinement, ordering, symlink, and output-limit tests. Chapter 8 adds that complete slice to the same dispatcher. Until then, an attempted `list_files` call returns `unknown_tool`, which is the correct fail-closed behavior for an unavailable capability.
 
 ## Authorization before side effects
 
@@ -119,7 +120,7 @@ Classify effects before choosing an approval rule:
 
 | Effect class | Course example | Default course treatment | Production question |
 |---|---|---|---|
-| Read-only observation | read/list workspace text | automatic inside limits | Is the data sensitive or cross-tenant? |
+| Read-only observation | read workspace text | automatic inside limits | Is the data sensitive or cross-tenant? |
 | Reversible local change | write in disposable fixture | allowed for lab | Is there a diff, backup, or expected-content check? |
 | Code execution | configure/build/test | fixed actions on trusted fixture | Is repository code isolated from host/network/secrets? |
 | External or irreversible | publish/delete/send/spend | not exposed | What exact human approval and downstream authorization apply? |
@@ -136,15 +137,35 @@ Never generate a fresh result ID. The provider-supplied call ID is the join key 
 
 The runner reports one combined bounded output stream for portability. Production systems may preserve stdout/stderr separately and timestamp chunks. It also reports whether termination was caused by the deadline and whether bytes were truncated. A truncated compiler log is not equivalent to a complete one; the agent may need a narrower diagnostic action or targeted file inspection.
 
-Direct process invocation avoids shell metacharacter interpretation but does not make every argument harmless. Fixed argument vectors and a fixed working directory further reduce ambiguity. The child inherits a sanitized environment; removing the model key prevents a build script from reading it, but other secrets or ambient credentials may remain. Strong isolation should start from an allowlisted environment and restricted filesystem/network identity.
+Direct process invocation avoids shell metacharacter interpretation but does not make every argument harmless. Fixed argument vectors and a fixed working directory further reduce ambiguity. The reference child receives an explicit operating-system/toolchain environment allowlist, so arbitrary parent credentials—including the model key—are omitted. This still does not isolate the child's filesystem or network identity; stronger isolation needs a restricted identity and sandbox boundary.
 
 On timeout, terminate the process, wait for cleanup, and return structured evidence. Process trees complicate cleanup; the workshop implementation is adequate for a small fixture, while production sandboxes need job objects, process groups, or container-level termination.
 
 Treat `truncated: true` as a qualification on every conclusion. Exit code 1 plus a truncated tail proves failure but may hide the cause. Exit code 0 usually proves the invoked program reported success, yet a truncated log still cannot support claims about every printed warning. The model should request a narrower diagnostic or the harness should provide structured build/test summaries rather than silently assuming omitted text is irrelevant.
 
+## Read one tool result as three separate verdicts
+
+A tool result often contains three verdicts that must not be collapsed into a single `success` flag:
+
+| Verdict | Question | Example evidence |
+|---|---|---|
+| Authorization | Was this exact normalized effect permitted? | approval record, policy rule, normalized relative path |
+| Harness execution | Did the dispatcher obtain a bounded observation? | `ok`, timeout state, truncation state, correlation ID |
+| Workload outcome | Did the invoked build or test report the desired result? | process exit code and captured diagnostic |
+
+Consider an approved `build` call whose child process exits with code 1. Authorization succeeded: the policy allowed the fixed build action. Harness execution also succeeded: the process runner started the child, bounded it, captured output, and returned an envelope. The workload failed: the compiler rejected the program. Returning `ok: false` for this entire sequence would throw away the distinction the next model turn needs. Conversely, an exit code of 0 does not prove that an unapproved action should have run. Authorization always precedes the evidence produced by execution.
+
+The distinction becomes especially important when reviewing traces. A human should be able to point to the exact approved parameters, the actual dispatched parameters, and the resulting process record. If those cannot be joined, the trace cannot prove that the approved effect was the one performed. The reference implementation therefore records the call ID, authorization state, status, duration, and structured detail rather than relying on a friendly summary.
+
+Use three authorization values in that trace: `allowed` when a validated effect crossed the policy boundary, `rejected` for an explicit approval denial or an unmet required approval, and `not_evaluated` when validation stopped the request before policy was consulted. Do not infer authorization from the result envelope. A permitted compiler invocation can return a nonzero exit code; conversely, a malformed request never becomes an authorized effect at all.
+
+Treat the child environment as part of the dispatched parameters. Removing only the model-provider key is too narrow because developer machines commonly contain other credentials. The reference runner now constructs an allowlist of the toolchain and operating-system variables required to launch CMake and the compiler; arbitrary parent variables are omitted. The direct unit test inserts a sentinel secret into the parent and proves that the child cannot read it. This is an authority reduction, not complete isolation: a permitted build still runs repository-controlled code with the child's filesystem and network identity. A disposable workspace or container remains necessary for untrusted projects.
+
+Finally, test negative ordering, not merely negative outcomes. A rejected absolute path, traversal, symlink escape, malformed argument object, or denied approval must leave the target unchanged. That assertion demonstrates “rejected before side effect.” A test that checks only the returned error code could pass even if the implementation wrote first and complained afterward. For every effectful path, pair the expected envelope with a filesystem or process observation that proves no earlier stage leaked authority.
+
 ## Test the policy without a model
 
-Unit tests should instantiate `ToolDispatcher` over a temporary workspace and invoke calls directly. Cover valid read/write/list, unknown name, missing/extra/wrong-type arguments, absolute and relative escape, large content, symlink cases where supported, every action enum, nonzero exit, timeout, output truncation, and exact list limit. Model trials then test tool *selection*, not enforcement.
+Unit tests should instantiate `ToolDispatcher` over a temporary workspace and invoke calls directly. Cover valid read/write, unknown name (including the not-yet-enabled `list_files`), missing/extra/wrong-type arguments, absolute and relative escape, large content, symlink cases where supported, every action enum, nonzero exit, timeout, and output truncation. Model trials then test tool *selection*, not enforcement. The exact/over-limit listing cases become Chapter 8's focused acceptance tests.
 
 This split is diagnostically powerful. If a direct escape test fails, fix C++ policy. If direct tests pass but live behavior wastes calls, improve descriptions/prompts/evals. If the provider changes call shape, fix the adapter. Each layer has its own evidence.
 

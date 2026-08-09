@@ -1,0 +1,22 @@
+{
+  "fixture_kind": "authored_sanitized_example",
+  "not_a_live_capture": true,
+  "id": "req_<redacted>",
+  "model": "pinned-tool-model-placeholder",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Preflight response from the sanitized teaching fixture."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 18,
+    "completion_tokens": 9,
+    "total_tokens": 27,
+    "cost": 0
+  }
+}

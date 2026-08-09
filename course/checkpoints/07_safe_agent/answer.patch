@@ -1,0 +1,26 @@
+--- a/src/tool_dispatcher.cpp
++++ b/src/tool_dispatcher.cpp
+@@ -182,11 +182,21 @@
+     if (supplied.is_absolute() || supplied.has_root_name()) {
+         throw ToolRequestError("path_outside_workspace", "Absolute paths are not allowed");
+     }
++
++    const std::filesystem::path combined = (workspace_ / supplied).lexically_normal();
++    std::filesystem::path candidate;
++    try {
++        if (std::filesystem::exists(combined)) {
++            candidate = std::filesystem::canonical(combined);
++        } else {
++            candidate = std::filesystem::canonical(combined.parent_path()) / combined.filename();
++        }
++    } catch (const std::filesystem::filesystem_error&) {
++        throw ToolRequestError("path_not_found", "The requested path has no accessible existing parent.");
++    }
+-    const std::filesystem::path candidate = (workspace_ / supplied).lexically_normal();
+     if (!is_component_prefix(workspace_, candidate)) {
+         throw ToolRequestError("path_outside_workspace", "Path is outside the workshop workspace");
+     }
+-    // TODO checkpoint 07: canonicalize existing paths and parents so symlinks cannot escape.
+     return candidate;
+ }
+ 

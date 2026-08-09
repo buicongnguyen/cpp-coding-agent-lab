@@ -1,6 +1,6 @@
 # Slide outline 5 — Agent loop
 
-Last verified: 2026-08-08 | Target: 10 slides
+Last verified: 2026-08-09 | Target: 10 slides
 
 1. **Prediction:** what must happen after the first read result?
 2. **Minimal loop:** seven-line pseudocode, not implementation.

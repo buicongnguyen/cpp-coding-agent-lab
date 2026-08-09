@@ -2,7 +2,7 @@
 
 ## Detailed chapter and content-production plan
 
-Research verified: 2026-08-08  
+Research verified: 2026-08-09
 Source brief: `Info.txt`
 
 ## 1. Course design at a glance
@@ -74,13 +74,15 @@ Total instructional time is 390 minutes, excluding lunch and breaks. Approximate
 | 7 | 2,000 words | 8 | `07_safe_agent` | Prompt-only boundary versus enforced policy |
 | 8 | 2,000 words | 6 | `08_capstone_solution` | Isolated edit, diff review, build, and test |
 
+These manuscript numbers are minimum planning baselines, not hard maximums. The repository serves both a one-day workshop and a self-paced field course, so the full manuscripts may exceed the baseline when the added material clarifies a boundary or supports independent study. The website's workshop mode exposes the required briefing sections and keeps optional depth collapsed; the self-paced mode exposes the complete manuscript. Slide counts remain exact because the deck is the time-boxed facilitator surface.
+
 ## 2. Standard production package for every chapter
 
 Generate the following items for every chapter. This prevents the course from becoming a slide deck without a reliable lab path.
 
 ### A. Chapter manuscript
 
-- 1,500–2,500 words for core chapters; 800–1,200 words for Chapters 0 and 6.
+- Meet the chapter-production baseline above. Self-paced reference depth may exceed it; workshop delivery uses the explicitly selected briefing sections rather than reading the manuscript end to end.
 - Begin with one concrete failure, puzzle, or output transcript.
 - Introduce no more than three new conceptual abstractions before students use them.
 - Include one current-technology note labeled “Current ecosystem” so students can distinguish the workshop protocol from newer or provider-specific alternatives.
@@ -1056,7 +1058,7 @@ Define a per-event record containing:
 
 Keep full prompts optional because logging them creates privacy and retention consequences.
 
-#### 7.5 A five-case evaluation suite
+#### 7.5 A seven-case evaluation suite
 
 Create deterministic tasks:
 
@@ -1065,6 +1067,8 @@ Create deterministic tasks:
 3. Repair one failing test.
 4. Reject a path outside the workspace.
 5. Stop safely on a repeated failing command.
+6. Reject an unknown tool without performing an action.
+7. Reject malformed arguments before filesystem or process access.
 
 Score:
 
@@ -1096,7 +1100,7 @@ Show that the second result is reliable regardless of the model’s wording.
 
 ### Student lab
 
-Run the five-case suite, record results, then fix one measured failure in either the prompt, schema, dispatcher, or loop policy.
+Run the seven-case suite, record results, then fix one measured failure in either the prompt, schema, dispatcher, or loop policy.
 
 Deliverable:
 
@@ -1281,7 +1285,7 @@ The live-model attempt may instead finish with a trace that clearly identifies a
 Generate the material in this order rather than chapter-number order:
 
 1. Build the complete deterministic reference agent and fixture project.
-2. Write the five-case evaluation suite and make it pass without network access.
+2. Write the seven-case evaluation suite and make it pass without network access.
 3. Add the optional live OpenRouter client behind the same model-client interface.
 4. Capture a successful deterministic capstone trace, a live example, and at least three failure traces.
 5. Generate checkpoint code and manifests from the canonical implementation, then verify each checkpoint.
@@ -1311,7 +1315,7 @@ Generate the material in this order rather than chapter-number order:
 ### Two days before
 
 - Run a clean-room setup using the student instructions.
-- Execute all five eval cases three times with the pinned model.
+- Execute the deliberately live-capable subset E1–E5 three times with the pinned model. Keep E6 unknown-tool and E7 malformed-argument checks deterministic because they validate harness behavior rather than useful model variability.
 - Confirm the capstone reaches at least Level 3 in the recorded fallback.
 - Confirm mock/offline mode still works.
 - Rotate or validate instructor fallback credentials.

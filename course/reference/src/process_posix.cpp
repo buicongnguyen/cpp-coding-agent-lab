@@ -10,9 +10,14 @@
 #include <cerrno>
 #include <chrono>
 #include <cstring>
+#include <set>
 #include <stdexcept>
+#include <string>
 #include <thread>
+#include <utility>
 #include <vector>
+
+extern char** environ;
 
 namespace course_agent {
 
@@ -38,6 +43,24 @@ void drain(int descriptor, ProcessResult& result, std::size_t limit) {
     }
 }
 
+void retain_build_environment_only() {
+    static const std::set<std::string> allowed = {
+        "PATH", "TMPDIR", "TMP", "TEMP", "LANG", "LC_ALL",
+        "CC", "CXX", "SDKROOT", "MACOSX_DEPLOYMENT_TARGET",
+        "CMAKE_PREFIX_PATH", "CMAKE_GENERATOR"
+    };
+
+    std::vector<std::string> names_to_remove;
+    for (char** entry = ::environ; entry && *entry; ++entry) {
+        const std::string value(*entry);
+        const std::size_t separator = value.find('=');
+        if (separator == std::string::npos) continue;
+        const std::string name = value.substr(0, separator);
+        if (allowed.find(name) == allowed.end()) names_to_remove.push_back(name);
+    }
+    for (const std::string& name : names_to_remove) unsetenv(name.c_str());
+}
+
 } // namespace
 
 ProcessResult run_process(const ProcessRequest& request) {
@@ -51,7 +74,7 @@ ProcessResult run_process(const ProcessRequest& request) {
         dup2(output_pipe[1], STDOUT_FILENO);
         dup2(output_pipe[1], STDERR_FILENO);
         close(output_pipe[1]);
-        unsetenv("OPENROUTER_API_KEY");
+        retain_build_environment_only();
         if (chdir(request.working_directory.c_str()) != 0) _exit(126);
 
         std::vector<char*> arguments;
@@ -89,4 +112,3 @@ ProcessResult run_process(const ProcessRequest& request) {
 }
 
 } // namespace course_agent
-

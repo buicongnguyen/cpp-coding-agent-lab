@@ -1,6 +1,10 @@
 # Lab 8 — Make a reviewable self-change
 
-Last verified: 2026-08-08 | Time: 38 minutes | Start: `checkpoints/08_capstone_solution`
+Last verified: 2026-08-09 | Time: 38 minutes | Start: `checkpoints/08_capstone_solution`
+
+Materialize the deliberately incomplete learner state with `node course/scripts/checkpoints.mjs materialize 08_capstone_solution starter`; confirm that `list_files` is absent before working in `course/run/checkpoints/08_capstone_solution/starter`.
+
+Configure/build only inside that isolated starter with `cmake -S . -B build` and `cmake --build build --config Debug`. Use `ctest --test-dir build -C Debug -L checkpoint-08 --output-on-failure` as the focused post-change gate.
 
 ## Goal and constraints
 
@@ -10,7 +14,7 @@ In an isolated copy, have the agent add or refine `list_files` end to end, then 
 
 1. Create a clean copy/worktree and record baseline build/tests.
 2. Give the requirement: bounded, sorted, workspace-relative regular files; skip symlinks; accurate `count`/`truncated`; no unrelated changes.
-3. Run the deterministic capstone path or a pinned live model. Stop if a policy/limit error occurs.
+3. If live mode is enabled, let the pinned model attempt the change. Otherwise implement the slice yourself before inspecting `answer.patch`. The recorded deterministic capstone fallback applies the checked-in instructor patch and proves build/tests only; it does not run an agent or attest human review.
 4. Review the diff before accepting the final claim.
 5. Run build, full tests, and focused exact-limit/over-limit behavior tests.
 6. Classify any failure as planning, protocol, policy, implementation, verification, reporting, or infrastructure.

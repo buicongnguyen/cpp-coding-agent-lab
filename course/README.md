@@ -10,14 +10,17 @@ Start with [`CURRICULUM_INDEX.md`](CURRICULUM_INDEX.md) for the complete chapter
 
 - `reference/` — canonical C++17 agent harness and tests.
 - `fixture/` — buggy calculator project and clean solution.
-- `evals/` — deterministic evaluation cases and runner instructions.
-- `checkpoints/` — learner checkpoint manifests.
+- `evals/` — executable deterministic evaluation cases E1–E7.
+- `checkpoints/` — generated learner starters, instructor solutions, and reviewed diffs.
 - `chapters/` — chapter manuscripts.
 - `labs/` — student lab handouts.
 - `instructor/` — demonstrations, timing, hints, and recovery notes.
-- `slides/` — concise slide outlines.
+- `slides/` — the 70-slide facilitator deck, maintainer generation source, and chapter outlines.
 - `assessments/` — questions, answer keys, and executable checks.
+- `assets/` and `demos/` — worksheets, raw fixtures, and provenance-labeled traces.
+- `scripts/` — checkpoint materialization, evaluation, and capstone-capture automation.
 - `sources/` — research-maintenance index.
+- `WRAP_UP.md`, `PILOT.md`, and `DELIVERY_GATES.md` — exit check and honest release gates.
 
 ## Build the reference implementation on Windows
 
@@ -37,12 +40,25 @@ Validate the teaching-package structure with:
 ./course/verify_materials.ps1
 ```
 
+Verify or materialize the progressive learner states:
+
+```powershell
+node course/scripts/checkpoints.mjs check
+node course/scripts/checkpoints.mjs materialize 05_agent_loop starter
+```
+
+After building the reference, run the named E1–E7 evaluation cases:
+
+```powershell
+node course/scripts/run-evals.mjs --build-dir course/reference/build
+```
+
 ## Run deterministic mode
 
 Copy `course/fixture/buggy_calculator` to a disposable directory, then run:
 
 ```powershell
-coding_agent --mock --workspace <copy> --scenario full-repair
+./course/reference/build/coding_agent --mock --workspace <copy> --scenario full-repair
 ```
 
 ## Run live mode
@@ -50,7 +66,9 @@ coding_agent --mock --workspace <copy> --scenario full-repair
 Set `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, and optionally `COURSE_AGENT_SYSTEM_PROMPT`. Then run:
 
 ```powershell
-coding_agent --live --workspace <disposable-workspace> --prompt "Build, test, and repair this project."
+./course/reference/build/coding_agent --live --workspace <disposable-workspace> --prompt "Build, test, and repair this project."
 ```
+
+The examples above run from the repository root and show a single-config macOS/Linux path. On Windows PowerShell use `.\course\reference\build\coding_agent.exe` for a single-config generator or `.\course\reference\build\Debug\coding_agent.exe` for a multi-config generator.
 
 Live mode is intentionally optional. Never point the workshop agent at an important working tree.

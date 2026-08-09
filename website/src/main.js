@@ -5,13 +5,22 @@ import plaintextLanguage from "highlight.js/lib/languages/plaintext";
 import powershellLanguage from "highlight.js/lib/languages/powershell";
 import "highlight.js/styles/github-dark.css";
 import { marked } from "marked";
+import {
+  ACTIVITY_KINDS,
+  MINIMUM_EVIDENCE_LENGTH,
+  activityKey,
+  adjacentActivity,
+  evidenceRecordIsComplete,
+  readEvidenceRecords,
+  rewriteCourseHref,
+} from "./course-ui.js";
 import { courseData } from "./generated/course-data.js";
 import "./styles.css";
 
 const app = document.querySelector("#app");
 const repositoryUrl =
   import.meta.env.VITE_REPO_URL || "https://github.com/buicongnguyen/cpp-coding-agent-lab";
-const documentKinds = ["lesson", "lab", "exercise", "checkpoint"];
+const documentKinds = ACTIVITY_KINDS;
 const kindLabels = {
   lesson: "Lesson",
   lab: "Lab",
@@ -30,17 +39,28 @@ hljs.registerLanguage("powershell", powershellLanguage);
 hljs.registerLanguage("text", plaintextLanguage);
 hljs.registerLanguage("plaintext", plaintextLanguage);
 
-const legacyCompleted = JSON.parse(localStorage.getItem("agent-lab-progress") || "[]").map(Number);
-const savedActivities = JSON.parse(localStorage.getItem("agent-lab-activity-progress") || "[]");
+function readStoredArray(key) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+const legacyChapterCompletions = readStoredArray("agent-lab-progress").map(Number);
+const legacyActivityCompletions = readStoredArray("agent-lab-activity-progress");
+const legacyActivityKeys = new Set([
+  ...legacyActivityCompletions,
+  ...legacyChapterCompletions.flatMap((chapterId) =>
+    documentKinds.map((kind) => `${chapterId}:${kind}`),
+  ),
+]);
 
 const state = {
-  completedActivities: new Set(
-    savedActivities.length
-      ? savedActivities
-      : legacyCompleted.flatMap((chapterId) =>
-          documentKinds.map((kind) => `${chapterId}:${kind}`),
-        ),
-  ),
+  evidenceRecords: readEvidenceRecords(localStorage.getItem("agent-lab-evidence-v1")),
+  expandedReadings: new Set(),
+  activeEvidence: null,
   mode: localStorage.getItem("agent-lab-mode") || "workshop",
   traceIndex: 0,
   mechanismStage: 0,
@@ -72,20 +92,22 @@ function slugify(value) {
 
 function parseRoute() {
   const value = window.location.hash.replace(/^#\/?/, "");
-  const parts = value.split("/").filter(Boolean);
+  const [routeValue, query = ""] = value.split("?");
+  const section = new URLSearchParams(query).get("section");
+  const parts = routeValue.split("/").filter(Boolean);
 
   if (parts[0] === "chapter") {
     const chapterId = Number(parts[1]);
     const kind = documentKinds.includes(parts[2]) ? parts[2] : "lesson";
     if (Number.isInteger(chapterId) && courseData.chapters[chapterId]) {
-      return { page: "chapter", chapterId, kind };
+      return { page: "chapter", chapterId, kind, section };
     }
   }
 
   if (parts[0] === "resources") {
     const resourceId = parts[1] || courseData.resources[0].id;
     const resource = courseData.resources.find((item) => item.id === resourceId);
-    return { page: "resources", resource: resource || courseData.resources[0] };
+    return { page: "resources", resource: resource || courseData.resources[0], section };
   }
 
   return { page: "home" };
@@ -95,12 +117,15 @@ function sourceUrl(path) {
   return `${repositoryUrl}/blob/main/${path}`;
 }
 
-function activityKey(chapterId, kind) {
-  return `${chapterId}:${kind}`;
+function activityComplete(chapterId, kind) {
+  return evidenceRecordIsComplete(state.evidenceRecords[activityKey(chapterId, kind)]);
 }
 
-function activityComplete(chapterId, kind) {
-  return state.completedActivities.has(activityKey(chapterId, kind));
+function completedActivityCount() {
+  return courseData.chapters.reduce(
+    (total, chapter) => total + documentKinds.filter((kind) => activityComplete(chapter.id, kind)).length,
+    0,
+  );
 }
 
 function chapterProgress(chapterId) {
@@ -113,14 +138,11 @@ function chapterComplete(chapterId) {
 
 function progressPercent() {
   const total = courseData.chapters.length * documentKinds.length;
-  return Math.round((state.completedActivities.size / total) * 100);
+  return Math.round((completedActivityCount() / total) * 100);
 }
 
-function persistProgress() {
-  localStorage.setItem(
-    "agent-lab-activity-progress",
-    JSON.stringify([...state.completedActivities].sort()),
-  );
+function persistEvidence() {
+  localStorage.setItem("agent-lab-evidence-v1", JSON.stringify(state.evidenceRecords));
 }
 
 function nextActivity() {
@@ -139,6 +161,13 @@ function displayTime(chapter) {
 function chapterHref(id, kind = "lesson") {
   return `#/chapter/${id}/${kind}`;
 }
+
+const routeBySourcePath = new Map([
+  ...courseData.chapters.flatMap((chapter) =>
+    documentKinds.map((kind) => [chapter.documents[kind].path, chapterHref(chapter.id, kind)]),
+  ),
+  ...courseData.resources.map((resource) => [resource.path, `#/resources/${resource.id}`]),
+]);
 
 function shellTemplate() {
   return `
@@ -161,9 +190,9 @@ function shellTemplate() {
     <div class="app-shell">
       <aside class="sidebar" id="course-sidebar" aria-label="Course navigation">
         <div class="sidebar-progress">
-          <div class="progress-copy"><span>Your field log</span><strong data-progress-label>${state.completedActivities.size}/36</strong></div>
+          <div class="progress-copy"><span>Attested field log</span><strong data-progress-label>${completedActivityCount()}/36</strong></div>
           <div class="progress-track" aria-hidden="true"><span data-progress-bar style="width:${progressPercent()}%"></span></div>
-          <small>${progressPercent()}% · ${state.mode === "workshop" ? "one-day workshop" : "self-paced course"}</small>
+          <small>${progressPercent()}% · notes saved only on this device · ${state.mode === "workshop" ? "workshop" : "self-paced"}</small>
         </div>
         <nav id="course-nav"></nav>
         <div class="sidebar-note">
@@ -189,6 +218,36 @@ function shellTemplate() {
           <p class="search-empty">Search all lessons, labs, exercises, checkpoints, and course resources.</p>
         </div>
       </div>
+    </dialog>
+    <dialog class="evidence-dialog" id="evidence-dialog">
+      <form class="evidence-form" id="evidence-form">
+        <div class="evidence-heading">
+          <div><span class="eyebrow" id="evidence-step-label">Field log</span><h2 id="evidence-title">Record your evidence</h2></div>
+          <button class="icon-button" type="button" data-action="close-evidence" aria-label="Close evidence record">×</button>
+        </div>
+        <p class="evidence-intro" id="evidence-intro"></p>
+        <div class="evidence-progress" aria-label="Course evidence progress">
+          <div><span>Attested notes</span><strong id="evidence-progress-count">${completedActivityCount()}/36</strong></div>
+          <div class="progress-track" aria-hidden="true"><span id="evidence-progress-bar" style="width:${progressPercent()}%"></span></div>
+        </div>
+        <label class="evidence-note-label" for="evidence-note">
+          <span>Evidence note or reference</span>
+          <small>For example: the command and result you observed, a trace event, a test name, or the artifact path you reviewed.</small>
+        </label>
+        <textarea id="evidence-note" name="evidence-note" minlength="${MINIMUM_EVIDENCE_LENGTH}" maxlength="2000" required rows="6" placeholder="I ran… / I inspected… / Evidence is recorded at…"></textarea>
+        <label class="attestation-check">
+          <input id="evidence-attestation" type="checkbox" required />
+          <span>I attest that this note describes work I performed or evidence I personally reviewed.</span>
+        </label>
+        <p class="local-evidence-notice"><strong>Self-attestation only.</strong> This site stores the note in this browser. It does not run commands, inspect files, or validate that the evidence is correct.</p>
+        <div class="evidence-actions">
+          <button class="evidence-remove" id="evidence-remove" type="button" data-action="remove-evidence">Remove record</button>
+          <span></span>
+          <button class="button button-secondary" type="button" data-action="close-evidence">Cancel</button>
+          <button class="button button-primary" type="submit" data-save-mode="stay">Save note</button>
+          <button class="button button-primary" type="submit" data-save-mode="continue">Save &amp; continue →</button>
+        </div>
+      </form>
     </dialog>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
   `;
@@ -222,6 +281,15 @@ function renderSidebar(route) {
       <span class="nav-number">→</span><span><strong>Course resources</strong><small>Learning path, guides, research</small></span>
     </a>
   `;
+}
+
+function renderSidebarProgress() {
+  const completed = completedActivityCount();
+  const percent = progressPercent();
+  document.querySelector("[data-progress-label]").textContent = `${completed}/36`;
+  document.querySelector("[data-progress-bar]").style.width = `${percent}%`;
+  document.querySelector(".sidebar-progress small").textContent =
+    `${percent}% · notes saved only on this device · ${state.mode === "workshop" ? "workshop" : "self-paced"}`;
 }
 
 const mechanismStages = [
@@ -354,12 +422,12 @@ function homeTemplate() {
             <button type="button" class="${state.mode === "self-paced" ? "is-active" : ""}" data-action="select-mode" data-mode="self-paced"><strong>Self-paced field course</strong><small>11–13 hr · full depth</small></button>
           </div>
           <div class="hero-actions">
-            <a class="button button-primary" href="${chapterHref(next.chapterId, next.kind)}">${state.completedActivities.size ? "Continue the mission" : "Enter chapter 0"} <span>→</span></a>
+            <a class="button button-primary" href="${chapterHref(next.chapterId, next.kind)}">${completedActivityCount() ? "Continue the mission" : "Enter chapter 0"} <span>→</span></a>
             <a class="button button-secondary" href="#/resources/learner-path">See how the course works</a>
           </div>
           <div class="hero-facts" aria-label="Course facts">
             <span><strong>9</strong> system upgrades</span>
-            <span><strong>36</strong> evidence steps</span>
+            <span><strong>${completedActivityCount()}/36</strong> attested evidence notes</span>
             <span><strong>0</strong> required API keys</span>
           </div>
         </div>
@@ -460,21 +528,33 @@ function renderMarkdown(document) {
 
   const usedIds = new Set();
   container.querySelectorAll("h2, h3").forEach((heading) => {
-    let id = slugify(heading.textContent) || "section";
+    const headingTitle = heading.textContent.trim();
+    let id = slugify(headingTitle) || "section";
     let suffix = 2;
     while (usedIds.has(id)) {
       id = `${id}-${suffix++}`;
     }
     usedIds.add(id);
     heading.id = id;
-    heading.innerHTML += `<button class="heading-anchor" type="button" data-action="scroll-section" data-section="${id}" aria-label="Scroll to ${escapeHtml(heading.textContent)}">#</button>`;
+    heading.dataset.headingTitle = headingTitle;
+    heading.innerHTML += `<button class="heading-anchor" type="button" data-action="scroll-section" data-section="${id}" aria-label="Scroll to ${escapeHtml(headingTitle)}">#</button>`;
   });
 
   container.querySelectorAll("a").forEach((link) => {
     const href = link.getAttribute("href") || "";
-    if (/^https?:\/\//.test(href)) {
+    const rewritten = rewriteCourseHref({
+      href,
+      sourcePath: document.path,
+      routeByPath: routeBySourcePath,
+      repositoryUrl,
+    });
+    link.setAttribute("href", rewritten.href);
+    if (rewritten.external) {
       link.target = "_blank";
       link.rel = "noreferrer";
+    } else {
+      link.removeAttribute("target");
+      link.removeAttribute("rel");
     }
   });
 
@@ -517,18 +597,83 @@ function renderMarkdown(document) {
   return container;
 }
 
+function readingKey(chapterId, kind) {
+  return activityKey(chapterId, kind);
+}
+
+function workshopReadingTemplate(chapter, kind) {
+  const document = chapter.documents[kind];
+  const expanded = state.expandedReadings.has(readingKey(chapter.id, kind));
+  const sectionLinks = document.requiredWorkshopSections
+    .map(
+      (section) =>
+        `<button type="button" data-action="scroll-section" data-section="${slugify(section)}">${escapeHtml(section)}</button>`,
+    )
+    .join("");
+
+  if (state.mode === "self-paced") {
+    return `
+      <section class="reading-mode-card self-paced-reading" aria-label="Self-paced reading guidance">
+        <div><span class="eyebrow">Self-paced · full depth</span><h2>Read the complete ${kindLabels[kind].toLowerCase()}</h2><p>All sections, worked examples, failure analysis, references, hints, and extensions remain in the main reading flow.</p></div>
+        <span class="reading-mode-time">${chapter.selfPacedTime} min chapter budget</span>
+      </section>`;
+  }
+
+  return `
+    <section class="reading-mode-card workshop-reading" aria-label="Workshop reading guidance">
+      <div><span class="eyebrow">Workshop focus · required now</span><h2>${escapeHtml(chapter.workshopFocus)}</h2><p>Use the highlighted sections during the timed session. The full self-paced material is still available here whenever you need the deeper rationale.</p></div>
+      <div class="workshop-section-list" aria-label="Required workshop sections">${sectionLinks}</div>
+      <button class="reading-expand" type="button" data-action="toggle-full-reading" data-chapter="${chapter.id}" data-kind="${kind}">${expanded ? "Hide optional depth" : "Show full self-paced reading"}</button>
+    </section>`;
+}
+
+function applyWorkshopReading(container, chapter, kind) {
+  if (state.mode !== "workshop" || state.expandedReadings.has(readingKey(chapter.id, kind))) return;
+
+  const requiredSections = new Set(chapter.documents[kind].requiredWorkshopSections);
+  let sectionIsRequired = true;
+  for (const child of container.children) {
+    if (child.matches("h2")) {
+      sectionIsRequired = requiredSections.has(child.dataset.headingTitle);
+    }
+    if (!sectionIsRequired) {
+      child.classList.add("workshop-optional-section");
+      child.hidden = true;
+    }
+  }
+}
+
 function documentFactory(tag, className) {
   const element = window.document.createElement(tag);
   if (className) element.className = className;
   return element;
 }
 
+function evidenceTimestamp(record) {
+  if (!record?.updatedAt) return "Saved on this device";
+  const value = new Date(record.updatedAt);
+  return Number.isNaN(value.getTime()) ? "Saved on this device" : `Self-attested ${value.toLocaleString()}`;
+}
+
 function chapterTemplate(chapter, kind) {
   const document = chapter.documents[kind];
-  const previous = courseData.chapters[chapter.id - 1];
-  const next = courseData.chapters[chapter.id + 1];
+  const previousActivity = adjacentActivity(courseData.chapters, chapter.id, kind, -1);
+  const nextActivity = adjacentActivity(courseData.chapters, chapter.id, kind, 1);
+  const previousChapter = previousActivity
+    ? courseData.chapters.find((item) => item.id === previousActivity.chapterId)
+    : null;
+  const nextChapter = nextActivity
+    ? courseData.chapters.find((item) => item.id === nextActivity.chapterId)
+    : null;
+  const key = activityKey(chapter.id, kind);
+  const evidenceRecord = state.evidenceRecords[key];
   const done = activityComplete(chapter.id, kind);
   const progress = chapterProgress(chapter.id);
+  const evidenceSummary = done
+    ? `<p class="evidence-summary"><strong>Saved note</strong><span>${escapeHtml(evidenceRecord.note)}</span><small>${escapeHtml(evidenceTimestamp(evidenceRecord))}</small></p>`
+    : legacyActivityKeys.has(key)
+      ? `<p class="evidence-summary needs-attestation"><strong>Previous toggle found</strong><span>Add a note and attest it before this step counts toward progress.</span></p>`
+      : `<p class="evidence-summary"><strong>No evidence note yet</strong><span>Record what you ran, inspected, or produced when this activity is complete.</span></p>`;
   const activityDescriptions = {
     lesson: "Explain the boundary and predict the chapter failure before touching code.",
     lab: "Use the reference harness and disposable fixture to produce the required artifact.",
@@ -565,16 +710,17 @@ function chapterTemplate(chapter, kind) {
       <article class="article-card" id="article-content">
         <div class="article-label"><span>${kindLabels[kind]}</span><span>${escapeHtml(document.title)}</span></div>
         <div class="activity-brief">
-          <div><span class="eyebrow">${kindActions[kind]} · evidence step ${documentKinds.indexOf(kind) + 1} of 4</span><p>${escapeHtml(activityDescriptions[kind])}</p></div>
-          <button class="completion-button ${done ? "is-complete" : ""}" type="button" data-action="toggle-activity" data-chapter="${chapter.id}" data-kind="${kind}">
-            <span>${done ? "✓" : "○"}</span>${done ? "Evidence recorded" : "Record this evidence"}
+          <div><span class="eyebrow">${kindActions[kind]} · evidence step ${documentKinds.indexOf(kind) + 1} of 4</span><p>${escapeHtml(activityDescriptions[kind])}</p>${evidenceSummary}</div>
+          <button class="completion-button ${done ? "is-complete" : ""}" type="button" data-action="open-evidence" data-chapter="${chapter.id}" data-kind="${kind}">
+            <span>${done ? "✓" : "○"}</span>${done ? "Review or edit evidence" : "Record evidence note"}
           </button>
         </div>
+        ${workshopReadingTemplate(chapter, kind)}
         <div id="markdown-mount"></div>
       </article>
-      <nav class="chapter-pagination" aria-label="Chapter pagination">
-        ${previous ? `<a href="${chapterHref(previous.id)}"><small>← Previous</small><strong>${escapeHtml(previous.shortTitle)}</strong></a>` : `<span></span>`}
-        ${next ? `<a class="next-link" href="${chapterHref(next.id)}"><small>Next →</small><strong>${escapeHtml(next.shortTitle)}</strong></a>` : `<a class="next-link" href="#/resources/course-guide"><small>Finish →</small><strong>Course resources</strong></a>`}
+      <nav class="chapter-pagination" aria-label="Activity pagination">
+        ${previousActivity ? `<a href="${chapterHref(previousActivity.chapterId, previousActivity.kind)}"><small>← Previous activity</small><strong>Chapter ${previousActivity.chapterId} · ${kindLabels[previousActivity.kind]} — ${escapeHtml(previousChapter.shortTitle)}</strong></a>` : `<a href="#/"><small>← Course overview</small><strong>Campaign map and progress</strong></a>`}
+        ${nextActivity ? `<a class="next-link" href="${chapterHref(nextActivity.chapterId, nextActivity.kind)}"><small>${nextActivity.chapterId === chapter.id ? "Next activity" : "Next chapter"} →</small><strong>Chapter ${nextActivity.chapterId} · ${kindLabels[nextActivity.kind]} — ${escapeHtml(nextChapter.shortTitle)}</strong></a>` : `<a class="next-link" href="#/resources/course-guide"><small>Finish →</small><strong>Course resources</strong></a>`}
       </nav>
     </div>
   `;
@@ -606,7 +752,7 @@ function resourcesTemplate(resource) {
 function buildToc(container) {
   const toc = document.querySelector("#page-toc");
   const headings = [...container.querySelectorAll("h2, h3")].filter(
-    (heading) => !heading.closest("details"),
+    (heading) => !heading.closest("details") && !heading.hidden,
   );
   if (!headings.length) {
     toc.innerHTML = "";
@@ -628,6 +774,7 @@ function buildToc(container) {
 function renderRoute() {
   const route = parseRoute();
   renderSidebar(route);
+  renderSidebarProgress();
   const main = document.querySelector("#main-content");
   const toc = document.querySelector("#page-toc");
 
@@ -642,6 +789,7 @@ function renderRoute() {
     main.innerHTML = chapterTemplate(chapter, route.kind);
     const rendered = renderMarkdown(document);
     main.querySelector("#markdown-mount").append(rendered);
+    applyWorkshopReading(rendered, chapter, route.kind);
     buildToc(rendered);
     window.document.title = `${kindLabels[route.kind]} · ${chapter.shortTitle} · Agent Lab`;
   } else {
@@ -654,6 +802,12 @@ function renderRoute() {
 
   document.body.classList.remove("sidebar-open");
   window.scrollTo({ top: 0, behavior: "instant" });
+  if (route.section) {
+    window.setTimeout(() => {
+      const target = document.getElementById(route.section) || document.getElementById(slugify(route.section));
+      target?.scrollIntoView({ behavior: "smooth" });
+    }, 0);
+  }
 }
 
 function plainSearchText(markdown) {
@@ -743,6 +897,40 @@ function openSearch() {
   window.setTimeout(() => document.querySelector("#search-input").focus(), 20);
 }
 
+function openEvidenceDialog(chapterId, kind) {
+  const chapter = courseData.chapters.find((item) => item.id === chapterId);
+  if (!chapter || !documentKinds.includes(kind)) return;
+
+  const key = activityKey(chapterId, kind);
+  const record = state.evidenceRecords[key] || {};
+  const globalStep = chapterId * documentKinds.length + documentKinds.indexOf(kind) + 1;
+  const dialog = document.querySelector("#evidence-dialog");
+  const note = document.querySelector("#evidence-note");
+
+  state.activeEvidence = { chapterId, kind };
+  document.querySelector("#evidence-step-label").textContent =
+    `Chapter ${chapterId} · ${kindLabels[kind]} · step ${globalStep} of 36`;
+  document.querySelector("#evidence-title").textContent =
+    record.note ? "Review your evidence note" : "Record your evidence note";
+  document.querySelector("#evidence-intro").textContent =
+    `${chapter.documents[kind].title}. Describe the evidence you observed; a completion claim by itself is not enough.`;
+  document.querySelector("#evidence-progress-count").textContent = `${completedActivityCount()}/36`;
+  document.querySelector("#evidence-progress-bar").style.width = `${progressPercent()}%`;
+  note.value = record.note || "";
+  note.setCustomValidity("");
+  document.querySelector("#evidence-attestation").checked = record.attested === true;
+  document.querySelector("#evidence-remove").hidden = !record.note;
+
+  if (!dialog.open) dialog.showModal();
+  window.setTimeout(() => note.focus(), 20);
+}
+
+function closeEvidenceDialog() {
+  const dialog = document.querySelector("#evidence-dialog");
+  if (dialog.open) dialog.close();
+  state.activeEvidence = null;
+}
+
 app.innerHTML = shellTemplate();
 renderRoute();
 
@@ -758,6 +946,10 @@ document.addEventListener("click", async (event) => {
   if (action === "open-search") openSearch();
   if (action === "close-search") document.querySelector("#search-dialog").close();
   if (action === "search-result") document.querySelector("#search-dialog").close();
+  if (action === "open-evidence") {
+    openEvidenceDialog(Number(trigger.dataset.chapter), trigger.dataset.kind);
+  }
+  if (action === "close-evidence") closeEvidenceDialog();
   if (action === "scroll-section") {
     document.getElementById(trigger.dataset.section)?.scrollIntoView({ behavior: "smooth" });
   }
@@ -798,15 +990,20 @@ document.addEventListener("click", async (event) => {
     renderRoute();
   }
 
-  if (action === "toggle-activity") {
-    const chapterId = Number(trigger.dataset.chapter);
-    const kind = trigger.dataset.kind;
-    const key = activityKey(chapterId, kind);
-    if (state.completedActivities.has(key)) state.completedActivities.delete(key);
-    else state.completedActivities.add(key);
-    persistProgress();
+  if (action === "toggle-full-reading") {
+    const key = readingKey(Number(trigger.dataset.chapter), trigger.dataset.kind);
+    if (state.expandedReadings.has(key)) state.expandedReadings.delete(key);
+    else state.expandedReadings.add(key);
     renderRoute();
-    showToast(state.completedActivities.has(key) ? "Evidence step recorded" : "Evidence step reopened");
+  }
+
+  if (action === "remove-evidence" && state.activeEvidence) {
+    const key = activityKey(state.activeEvidence.chapterId, state.activeEvidence.kind);
+    delete state.evidenceRecords[key];
+    persistEvidence();
+    closeEvidenceDialog();
+    renderRoute();
+    showToast("Local evidence note removed");
   }
 
   if (action === "copy-code") {
@@ -824,6 +1021,51 @@ document.querySelector("#search-input").addEventListener("input", (event) => {
 
 document.querySelector("#search-dialog").addEventListener("click", (event) => {
   if (event.target === event.currentTarget) event.currentTarget.close();
+});
+
+document.querySelector("#evidence-dialog").addEventListener("click", (event) => {
+  if (event.target === event.currentTarget) closeEvidenceDialog();
+});
+
+document.querySelector("#evidence-dialog").addEventListener("close", () => {
+  state.activeEvidence = null;
+});
+
+document.querySelector("#evidence-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (!state.activeEvidence) return;
+
+  const noteInput = document.querySelector("#evidence-note");
+  const note = noteInput.value.trim();
+  noteInput.setCustomValidity(
+    note.length < MINIMUM_EVIDENCE_LENGTH
+      ? `Add at least ${MINIMUM_EVIDENCE_LENGTH} meaningful characters of evidence.`
+      : "",
+  );
+  if (!event.currentTarget.reportValidity()) return;
+
+  const { chapterId, kind } = state.activeEvidence;
+  const key = activityKey(chapterId, kind);
+  state.evidenceRecords[key] = {
+    note,
+    attested: document.querySelector("#evidence-attestation").checked,
+    updatedAt: new Date().toISOString(),
+  };
+  legacyActivityKeys.delete(key);
+  persistEvidence();
+  const shouldContinue = event.submitter?.dataset.saveMode === "continue";
+  const next = adjacentActivity(courseData.chapters, chapterId, kind, 1);
+  closeEvidenceDialog();
+
+  if (shouldContinue) {
+    window.location.hash = next
+      ? chapterHref(next.chapterId, next.kind).slice(1)
+      : "/resources/course-guide";
+    if (!next && window.location.hash === "#/resources/course-guide") renderRoute();
+  } else {
+    renderRoute();
+  }
+  showToast("Self-attested evidence note saved locally");
 });
 
 document.addEventListener("keydown", (event) => {

@@ -12,7 +12,7 @@ for (const [index, chapter] of courseData.chapters.entries()) {
     errors.push(`Expected chapter id ${index}, found ${chapter.id}.`);
   }
 
-  for (const field of ["mission", "upgrade", "failure", "proof"]) {
+  for (const field of ["mission", "upgrade", "failure", "proof", "workshopFocus"]) {
     if (!chapter[field]?.trim()) {
       errors.push(`Chapter ${chapter.id} is missing learner-facing ${field} copy.`);
     }
@@ -29,6 +29,18 @@ for (const [index, chapter] of courseData.chapters.entries()) {
     }
     if (!document?.path?.startsWith("course/")) {
       errors.push(`Chapter ${chapter.id} ${kind} has an invalid source path.`);
+    }
+    if (!Array.isArray(document?.requiredWorkshopSections) || !document.requiredWorkshopSections.length) {
+      errors.push(`Chapter ${chapter.id} ${kind} needs at least one required workshop section.`);
+    } else {
+      const availableSections = new Set(
+        [...document.markdown.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim()),
+      );
+      for (const section of document.requiredWorkshopSections) {
+        if (!availableSections.has(section)) {
+          errors.push(`Chapter ${chapter.id} ${kind} workshop section was not found: ${section}`);
+        }
+      }
     }
   }
 

@@ -1,0 +1,3 @@
+{"kind":"capture_template","capture_status":"pending","captured_from_executable":false,"scenario":"deterministic_capstone_list_files","warning":"This is an evidence checklist, not a completed capstone trace."}
+{"kind":"required_evidence","items":["clean isolated baseline identity","green baseline build and tests","relevant source inspection","bounded plan","focused diff","normal list_files case","path escape denial","exact and over-limit cases","post-write full build and tests","accurate final report","human keep/amend/discard decision"]}
+{"kind":"success_ladder","levels":{"1":"correct files and plan","2":"coherent diff","3":"compiles","4":"existing tests pass","5":"new boundary tests pass","6":"accurate evidence-backed report"},"achieved_level":null}

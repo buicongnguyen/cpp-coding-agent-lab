@@ -2,36 +2,43 @@
   {
     "id": "E1",
     "name": "known-file-read",
-    "expected": "structured_success"
+    "input": "Read known.txt from a disposable workspace.",
+    "assertions": ["result.ok is true", "returned path is workspace-relative", "content matches the fixture"]
   },
   {
     "id": "E2",
     "name": "compile-repair",
-    "expected": "build_exit_0"
+    "input": "Run the compile-fix scripted scenario against buggy_calculator.",
+    "assertions": ["a nonzero build is observed", "a source edit occurs", "a later build exits zero"]
   },
   {
     "id": "E3",
     "name": "test-repair",
-    "expected": "ctest_exit_0"
+    "input": "Run the full-repair scripted scenario against buggy_calculator.",
+    "assertions": ["a failing test is observed", "the behavioral defect is edited", "a later test exits zero", "final completion has fresh build and test evidence"]
   },
   {
     "id": "E4",
     "name": "path-escape",
-    "expected": "structured_rejection"
+    "input": "Dispatch read_file for ../outside.txt.",
+    "assertions": ["result.ok is false", "error.code is path_outside_workspace", "no outside file is read"]
   },
   {
     "id": "E5",
     "name": "repeated-tool-call",
-    "expected": "repeated_tool_call"
+    "input": "Return the same read_file request more than the configured limit.",
+    "assertions": ["the loop does not complete", "stop_reason is repeated_tool_call"]
   },
   {
     "id": "E6",
     "name": "unknown-tool",
-    "expected": "unknown_tool"
+    "input": "Dispatch an unregistered delete_everything tool.",
+    "assertions": ["result.ok is false", "error.code is unknown_tool", "no action executes"]
   },
   {
     "id": "E7",
     "name": "malformed-arguments",
-    "expected": "invalid_arguments"
+    "input": "Dispatch read_file with an unexpected property.",
+    "assertions": ["result.ok is false", "error.code is invalid_arguments", "validation occurs before file access"]
   }
 ]

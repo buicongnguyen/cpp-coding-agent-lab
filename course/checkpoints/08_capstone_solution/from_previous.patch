@@ -1,0 +1,119 @@
+--- a/src/tool_dispatcher.cpp
++++ b/src/tool_dispatcher.cpp
+@@ -171,7 +171,13 @@
+         std::move(command_properties),
+         required_fields({"action"})));
+ 
++    Json list_properties = Json::object();
++    list_properties["path"] = string_property("Directory path relative to the workshop workspace; use '.' for the root.");
++    tools.push_back(function_tool(
++        "list_files",
++        "List a bounded number of regular files below a workspace-relative directory without following paths outside the workspace.",
++        std::move(list_properties),
++        required_fields({"path"})));
+-    // list_files is intentionally absent until checkpoint 08.
+ 
+     return tools;
+ }
+@@ -228,6 +234,7 @@
+             }
+             return write_file(normalized.arguments);
+         }
++        if (call.name == "list_files") return list_files(call.arguments);
+         if (call.name == "run_command") return run_command(call.arguments);
+         return tool_failure("unknown_tool", "The requested tool is not registered.");
+     } catch (const ToolRequestError& error) {
+@@ -278,8 +285,38 @@
+ }
+ 
+ Json ToolDispatcher::list_files(const Json& arguments) const {
++    require_only(arguments, {"path"});
++    const std::filesystem::path directory = resolve_inside_workspace(required_string(arguments, "path"));
++    if (!std::filesystem::is_directory(directory)) return tool_failure("not_a_directory", "The requested workspace path is not a directory.");
++
++    std::vector<std::string> paths;
++    bool truncated = false;
++    for (std::filesystem::recursive_directory_iterator iterator(
++             directory, std::filesystem::directory_options::skip_permission_denied), end;
++         iterator != end;
++         ++iterator) {
++        std::error_code error;
++        if (iterator->is_symlink(error)) {
++            if (iterator->is_directory(error)) iterator.disable_recursion_pending();
++            continue;
++        }
++        if (iterator->is_regular_file(error)) {
++            if (paths.size() == limits_.max_list_entries) {
++                truncated = true;
++                break;
++            }
++            paths.push_back(std::filesystem::relative(iterator->path(), workspace_).generic_string());
++        }
++    }
++    std::sort(paths.begin(), paths.end());
++
++    Json files = Json::array();
++    for (const std::string& path : paths) files.push_back(path);
++    Json data = Json::object();
++    data["files"] = std::move(files);
++    data["count"] = paths.size();
++    data["truncated"] = truncated;
++    return tool_success(std::move(data));
+-    (void)arguments;
+-    return tool_failure("unknown_tool", "list_files is introduced in checkpoint 08.");
+ }
+ 
+ Json ToolDispatcher::run_command(const Json& arguments) const {
+--- a/tests/test_main.cpp
++++ b/tests/test_main.cpp
+@@ -186,7 +186,7 @@
+     TempTree tree(unique_temp("schemas"));
+     const course_agent::ToolDispatcher tools(tree.path());
+     const course_agent::Json definitions = tools.definitions();
++    check(definitions.is_array() && definitions.size() == 4, "Expected four final-state tool definitions");
+-    check(definitions.is_array() && definitions.size() == 3, "Expected three pre-capstone tool definitions");
+ 
+     std::set<std::string> names;
+     for (const course_agent::Json& definition : definitions.as_array()) {
+@@ -200,7 +200,7 @@
+         check(parameters.at("required").is_array() && parameters.at("required").size() > 0, "Tool must declare required fields");
+         check(!parameters.at("additionalProperties").as_bool(), "Tool must reject additional properties");
+     }
++    check(names == std::set<std::string>({"list_files", "read_file", "run_command", "write_file"}), "Tool definition names drifted");
+-    check(names == std::set<std::string>({"read_file", "run_command", "write_file"}), "Tool definition names drifted");
+ 
+     const auto& command = definitions.at(2).at("function").at("parameters").at("properties").at("action");
+     check(command.at("enum").size() == 3, "run_command action enum must contain exactly three actions");
+@@ -238,13 +238,30 @@
+     check(write.at("ok").as_bool(), "Valid file write failed: " + write.dump());
+     check(std::filesystem::is_regular_file(tree.path() / "src" / "new.cpp"), "Written file is missing");
+ 
++    const course_agent::Json list = tools.execute({"list-1", "list_files", arguments({{"path", "."}})});
++    check(list.at("ok").as_bool(), "File listing failed");
++    check(list.at("data").at("count").as_number() >= 2.0, "File listing omitted expected files");
++
++    TempTree list_tree(unique_temp("list_limit"));
++    {
++        std::ofstream(list_tree.path() / "b.txt") << "b";
++        std::ofstream(list_tree.path() / "a.txt") << "a";
++    }
++    course_agent::ToolLimits list_limits;
++    list_limits.max_list_entries = 2;
++    const course_agent::ToolDispatcher limited_tools(list_tree.path(), list_limits);
++    const course_agent::Json exact_list = limited_tools.execute({"list-2", "list_files", arguments({{"path", "."}})});
++    check(!exact_list.at("data").at("truncated").as_bool(), "Exact-limit listing was incorrectly truncated");
++    std::ofstream(list_tree.path() / "c.txt") << "c";
++    const course_agent::Json over_list = limited_tools.execute({"list-3", "list_files", arguments({{"path", "."}})});
++    check(over_list.at("data").at("truncated").as_bool(), "Over-limit listing did not report truncation");
++    check(over_list.at("data").at("count").as_number() == 2.0, "Over-limit listing returned too many files");
+-    // list_files boundary tests are unlocked by checkpoint 08.
+ 
+     const course_agent::Json denied = tools.execute({"command-1", "run_command", arguments({{"action", "delete"}})});
+     check(!denied.at("ok").as_bool(), "Unapproved command action was accepted");
+ 
+     const course_agent::Json definitions = tools.definitions();
++    check(definitions.is_array() && definitions.size() == 4, "Expected four tool definitions");
+-    check(definitions.is_array() && definitions.size() == 3, "Expected three pre-capstone tool definitions");
+ }
+ 
+ void test_eval_known_file_read() {

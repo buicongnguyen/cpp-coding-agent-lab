@@ -13,3 +13,6 @@ Complete the schemas for `read_file`, `write_file`, and symbolic `run_command(ac
 
 Schemas have required fields, reject additional properties, and state their workspace boundaries.
 
+## Materialize
+
+Run `node course/scripts/checkpoints.mjs materialize 03_tool_schema starter` from the repository root. Compare with the `solution` variant only after recording the learner evidence.

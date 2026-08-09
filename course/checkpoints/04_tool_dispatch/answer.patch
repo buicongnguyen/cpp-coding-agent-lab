@@ -1,0 +1,45 @@
+--- a/src/tool_dispatcher.cpp
++++ b/src/tool_dispatcher.cpp
+@@ -191,8 +191,40 @@
+ }
+ 
+ Json ToolDispatcher::execute(const ToolCall& call) const {
++    try {
++        if (call.name == "read_file") return read_file(call.arguments);
++        if (call.name == "write_file") {
++            require_only(call.arguments, {"path", "content"});
++            const std::filesystem::path path = resolve_inside_workspace(required_string(call.arguments, "path"));
++            const std::string content = required_string(call.arguments, "content");
++            if (content.size() > limits_.max_write_bytes) {
++                return tool_failure("content_too_large", "The requested content exceeds the write limit.");
++            }
++            if (!std::filesystem::is_directory(path.parent_path())) {
++                return tool_failure("parent_missing", "The destination parent directory does not exist.");
++            }
++
++            ToolCall normalized = call;
++            const std::filesystem::path normalized_relative = path.lexically_relative(workspace_);
++            if (normalized_relative.empty() || *normalized_relative.begin() == "..") {
++                return tool_failure("path_outside_workspace", "The normalized write path is outside the workshop workspace.");
++            }
++            normalized.arguments["path"] = normalized_relative.generic_string();
++            if (policy_.require_write_approval && !policy_.approve) {
++                return tool_failure("approval_required", "This write requires an approval decision before execution.");
++            }
++            if (policy_.require_write_approval && !policy_.approve(normalized)) {
++                return tool_failure("approval_denied", "The operator denied this write request.");
++            }
++            return write_file(normalized.arguments);
++        }
++        if (call.name == "run_command") return run_command(call.arguments);
++        return tool_failure("unknown_tool", "The requested tool is not registered.");
++    } catch (const ToolRequestError& error) {
++        return tool_failure(error.code(), error.what());
++    } catch (const std::exception& error) {
++        return tool_failure("invalid_tool_request", error.what());
++    }
+-    (void)call;
+-    return tool_failure("checkpoint_incomplete", "TODO checkpoint 04: implement the fail-closed dispatcher pipeline.");
+ }
+ 
+ Json ToolDispatcher::read_file(const Json& arguments) const {

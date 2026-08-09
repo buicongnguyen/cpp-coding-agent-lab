@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "order": 0,
+  "id": "00_api_smoke",
+  "title": "API smoke test",
+  "feature": "api_smoke",
+  "testLabel": "checkpoint-00",
+  "focusFiles": [
+    "src/scripted_model_client.cpp",
+    "src/preflight.cpp"
+  ],
+  "releaseGate": "agent_preflight prints Mock model is ready. without an API key.",
+  "materialize": {
+    "both": "node course/scripts/checkpoints.mjs materialize 00_api_smoke",
+    "starter": "node course/scripts/checkpoints.mjs materialize 00_api_smoke starter",
+    "solution": "node course/scripts/checkpoints.mjs materialize 00_api_smoke solution"
+  },
+  "verify": {
+    "configure": "cmake -S . -B build",
+    "build": "cmake --build build --config Debug",
+    "test": "ctest --test-dir build -C Debug -L checkpoint-00 --output-on-failure"
+  },
+  "starter": {
+    "sha256": "c95de5612d30f3685f916a76626132794dd57a40e68f3ba474c7a7f3934956dc",
+    "lockedFeatures": [
+      "api_smoke",
+      "messages",
+      "system_prompt",
+      "tool_schema",
+      "tool_dispatch",
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ]
+  },
+  "solution": {
+    "sha256": "357d42781ed1df08e51b64ddc2ca0b682b211c0b7daf9e59cd402f66d626e77a",
+    "lockedFeatures": [
+      "messages",
+      "system_prompt",
+      "tool_schema",
+      "tool_dispatch",
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ],
+    "canonicalReference": false
+  },
+  "answerDiff": {
+    "path": "answer.patch",
+    "sha256": "f72543c4a7c4227ad90c4fa93b3ab80781e485e0a79adcb076369b87fe7b7bb9"
+  },
+  "previousCheckpointDiff": {
+    "path": "from_previous.patch",
+    "sha256": "fa8e56cc10849eca6299d49019338a2e186afa4a3c0716360eb22e24a7af9b38",
+    "from": null
+  }
+}

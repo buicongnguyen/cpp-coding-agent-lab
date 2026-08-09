@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cwctype>
+#include <map>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -50,14 +51,38 @@ std::vector<wchar_t> sanitized_environment() {
     if (!block) throw std::runtime_error("Could not read process environment");
 
     std::vector<wchar_t> result;
-    std::set<std::wstring> seen_names;
+    std::map<std::wstring, std::wstring> retained;
+    const std::set<std::wstring> allowed_names = {
+        L"PATH", L"SYSTEMROOT", L"WINDIR", L"COMSPEC", L"PATHEXT", L"TEMP", L"TMP",
+        L"INCLUDE", L"LIB", L"LIBPATH", L"NUMBER_OF_PROCESSORS", L"PROCESSOR_ARCHITECTURE",
+        L"VCINSTALLDIR", L"VCTOOLSINSTALLDIR", L"VCTOOLSREDISTDIR", L"WINDOWSSDKDIR",
+        L"WINDOWSSDKVERSION", L"UNIVERSALCRTSDKDIR", L"UCRTVERSION", L"VSINSTALLDIR",
+        L"CMAKE_PREFIX_PATH", L"CMAKE_GENERATOR", L"CC", L"CXX"
+    };
     for (const wchar_t* current = block; *current; current += std::wcslen(current) + 1) {
         std::wstring entry(current);
         std::wstring upper = entry;
         std::transform(upper.begin(), upper.end(), upper.begin(), [](wchar_t ch) { return std::towupper(ch); });
-        if (upper.rfind(L"OPENROUTER_API_KEY=", 0) == 0) continue;
         const std::size_t separator = upper.find(L'=');
-        if (separator != std::wstring::npos && !seen_names.insert(upper.substr(0, separator)).second) continue;
+        if (separator == std::wstring::npos) continue;
+        const std::wstring name = upper.substr(0, separator);
+        const bool visual_studio_command_variable = name.rfind(L"VSCMD_", 0) == 0 || name == L"__VSCMD_PREINIT_PATH";
+        if (allowed_names.find(name) == allowed_names.end() && !visual_studio_command_variable) continue;
+        retained[name] = std::move(entry);
+    }
+    // Windows environment blocks may contain case-variant duplicate names. Querying
+    // the process environment returns the effective value, which is particularly
+    // important for the developer-shell PATH/INCLUDE/LIB entries used by MSVC.
+    for (const std::wstring& name : allowed_names) {
+        const DWORD required = GetEnvironmentVariableW(name.c_str(), nullptr, 0);
+        if (required == 0) continue;
+        std::vector<wchar_t> value(required);
+        const DWORD written = GetEnvironmentVariableW(name.c_str(), value.data(), required);
+        if (written == 0 || written >= required) continue;
+        retained[name] = name + L"=" + std::wstring(value.data(), written);
+    }
+    for (const auto& item : retained) {
+        const std::wstring& entry = item.second;
         result.insert(result.end(), entry.begin(), entry.end());
         result.push_back(L'\0');
     }

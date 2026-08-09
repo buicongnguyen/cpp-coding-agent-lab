@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "canonicalSource": "../reference",
+  "sharedFixture": "../fixture",
+  "defaultOutput": "../run/checkpoints",
+  "checkpoints": [
+    {
+      "order": 0,
+      "id": "00_api_smoke",
+      "title": "API smoke test",
+      "feature": "api_smoke",
+      "testLabel": "checkpoint-00",
+      "focusFiles": [
+        "src/scripted_model_client.cpp",
+        "src/preflight.cpp"
+      ],
+      "releaseGate": "agent_preflight prints Mock model is ready. without an API key."
+    },
+    {
+      "order": 1,
+      "id": "01_messages",
+      "title": "Message history",
+      "feature": "messages",
+      "testLabel": "checkpoint-01",
+      "focusFiles": [
+        "include/course_agent/types.hpp",
+        "src/types.cpp"
+      ],
+      "releaseGate": "Message JSON round trips and every item sent to the model is inspectable."
+    },
+    {
+      "order": 2,
+      "id": "02_prompt_lab",
+      "title": "Prompt laboratory",
+      "feature": "system_prompt",
+      "testLabel": null,
+      "focusFiles": [
+        "src/main.cpp"
+      ],
+      "releaseGate": "The system prompt states the goal, evidence policy, action boundary, and completion evidence."
+    },
+    {
+      "order": 3,
+      "id": "03_tool_schema",
+      "title": "Tool schemas",
+      "feature": "tool_schema",
+      "testLabel": "checkpoint-03",
+      "focusFiles": [
+        "src/tool_dispatcher.cpp",
+        "src/openrouter_model_client.cpp"
+      ],
+      "releaseGate": "Three executable tools have strict schemas and live requests disable parallel tool calls."
+    },
+    {
+      "order": 4,
+      "id": "04_tool_dispatch",
+      "title": "Tool dispatcher",
+      "feature": "tool_dispatch",
+      "testLabel": "checkpoint-04",
+      "focusFiles": [
+        "src/tool_dispatcher.cpp",
+        "src/process_posix.cpp",
+        "src/process_windows.cpp"
+      ],
+      "releaseGate": "Known read/write/command actions work while traversal and unknown actions fail closed."
+    },
+    {
+      "order": 5,
+      "id": "05_agent_loop",
+      "title": "Agent loop",
+      "feature": "agent_loop",
+      "testLabel": "checkpoint-05",
+      "focusFiles": [
+        "include/course_agent/agent_loop.hpp",
+        "src/agent_loop.cpp"
+      ],
+      "releaseGate": "The deterministic compile-fix scenario builds the fixture and correlates every tool result."
+    },
+    {
+      "order": 6,
+      "id": "06_trace_and_limits",
+      "title": "Trace and limits",
+      "feature": "trace_and_limits",
+      "testLabel": "checkpoint-06",
+      "focusFiles": [
+        "include/course_agent/agent_loop.hpp",
+        "src/agent_loop.cpp"
+      ],
+      "releaseGate": "Every model/tool transition records iteration, call ID, result, usage, elapsed time, and stop reason."
+    },
+    {
+      "order": 7,
+      "id": "07_safe_agent",
+      "title": "Safe and evaluated agent",
+      "feature": "canonical_safety",
+      "testLabel": "checkpoint-07",
+      "focusFiles": [
+        "src/tool_dispatcher.cpp",
+        "src/process_posix.cpp",
+        "src/process_windows.cpp",
+        "tests/test_main.cpp"
+      ],
+      "releaseGate": "The network-free safety and recovery evaluation suite passes."
+    },
+    {
+      "order": 8,
+      "id": "08_capstone_solution",
+      "title": "Capstone: list_files",
+      "feature": "list_files",
+      "testLabel": "checkpoint-08",
+      "focusFiles": [
+        "src/tool_dispatcher.cpp",
+        "tests/test_main.cpp"
+      ],
+      "releaseGate": "list_files is schema-exposed, bounded, workspace-confined, and covered by the tool-boundary test."
+    }
+  ]
+}

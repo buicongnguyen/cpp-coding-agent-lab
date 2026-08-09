@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "order": 7,
+  "id": "07_safe_agent",
+  "title": "Safe and evaluated agent",
+  "feature": "canonical_safety",
+  "testLabel": "checkpoint-07",
+  "focusFiles": [
+    "src/tool_dispatcher.cpp",
+    "src/process_posix.cpp",
+    "src/process_windows.cpp",
+    "tests/test_main.cpp"
+  ],
+  "releaseGate": "The network-free safety and recovery evaluation suite passes.",
+  "materialize": {
+    "both": "node course/scripts/checkpoints.mjs materialize 07_safe_agent",
+    "starter": "node course/scripts/checkpoints.mjs materialize 07_safe_agent starter",
+    "solution": "node course/scripts/checkpoints.mjs materialize 07_safe_agent solution"
+  },
+  "verify": {
+    "configure": "cmake -S . -B build",
+    "build": "cmake --build build --config Debug",
+    "test": "ctest --test-dir build -C Debug -L checkpoint-07 --output-on-failure"
+  },
+  "starter": {
+    "sha256": "977f23ba203c0656717010f25d0bdcfb0d4eb7e1464261f526fe3ae8aabca993",
+    "lockedFeatures": [
+      "canonical_safety",
+      "list_files"
+    ]
+  },
+  "solution": {
+    "sha256": "3af935e617baa8a813f60ec1bd862c2ac169c9d95b2436f380205ad94b8bd3f9",
+    "lockedFeatures": [
+      "list_files"
+    ],
+    "canonicalReference": false
+  },
+  "answerDiff": {
+    "path": "answer.patch",
+    "sha256": "8255bbc7dc4b3121d2e3186c16886aee6740cda8d858920081ae319811be17e2"
+  },
+  "previousCheckpointDiff": {
+    "path": "from_previous.patch",
+    "sha256": "8255bbc7dc4b3121d2e3186c16886aee6740cda8d858920081ae319811be17e2",
+    "from": "06_trace_and_limits"
+  }
+}

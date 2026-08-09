@@ -1,6 +1,6 @@
 # Chapter 0 — Environment, mental model, and preflight
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 25 minutes  
 Checkpoint: `00_api_smoke`
 

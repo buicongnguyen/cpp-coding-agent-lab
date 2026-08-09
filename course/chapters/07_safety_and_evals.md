@@ -1,6 +1,6 @@
 # Chapter 7 — Safety, reliability, observability, and evals
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 30 minutes  
 Checkpoint: `07_safe_agent`
 
@@ -59,7 +59,7 @@ OWASP's current excessive-agency guidance identifies three root dimensions: exce
 
 Classify tools by effect:
 
-- observation: `read_file`, `list_files`;
+- observation: `read_file`, plus `list_files` only after the Chapter 8 capstone;
 - reversible workspace mutation: `write_file` in an isolated copy;
 - execution: configure/build/test can run repository code;
 - external/irreversible effects: publish, send, delete, spend, or deploy.
@@ -111,7 +111,7 @@ Improper output handling is broader than shells. Rendering model Markdown as tru
 
 ## Isolation limits of the workshop
 
-Workspace path confinement prevents direct file tools from leaving the directory. It does not confine code executed by CMake or tests. Project code can open other files, use the network, spawn processes, or consume resources under the current OS identity. The child secret-removal control covers the model key but not every ambient credential.
+Workspace path confinement prevents direct file tools from leaving the directory. It does not confine code executed by CMake or tests. Project code can open other files, use the network, spawn processes, or consume resources under the current OS identity. The child-process allowlist omits arbitrary parent variables, including the model key. It does not restrict what credentials or files the child can obtain through the current OS identity, filesystem, credential stores, or network.
 
 For untrusted repositories, run configure/build/test inside an ephemeral container or VM with read-only inputs where possible, a writable scratch workspace, a minimal allowlisted environment, restricted network, CPU/memory/process/time quotas, and no host credentials. Review supply-chain downloads separately. The course fixture is trusted and dependency-free precisely so learners can focus on orchestration.
 

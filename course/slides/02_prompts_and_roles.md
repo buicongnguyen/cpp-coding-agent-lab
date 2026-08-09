@@ -1,6 +1,6 @@
 # Slide outline 2 — Prompts and roles
 
-Last verified: 2026-08-08 | Target: 8 slides
+Last verified: 2026-08-09 | Target: 8 slides
 
 1. **Prediction:** which of two system prompts yields more auditable behavior?
 2. **Four roles:** short causal history, one color per role.

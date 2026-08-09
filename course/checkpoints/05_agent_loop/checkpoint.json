@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "order": 5,
+  "id": "05_agent_loop",
+  "title": "Agent loop",
+  "feature": "agent_loop",
+  "testLabel": "checkpoint-05",
+  "focusFiles": [
+    "include/course_agent/agent_loop.hpp",
+    "src/agent_loop.cpp"
+  ],
+  "releaseGate": "The deterministic compile-fix scenario builds the fixture and correlates every tool result.",
+  "materialize": {
+    "both": "node course/scripts/checkpoints.mjs materialize 05_agent_loop",
+    "starter": "node course/scripts/checkpoints.mjs materialize 05_agent_loop starter",
+    "solution": "node course/scripts/checkpoints.mjs materialize 05_agent_loop solution"
+  },
+  "verify": {
+    "configure": "cmake -S . -B build",
+    "build": "cmake --build build --config Debug",
+    "test": "ctest --test-dir build -C Debug -L checkpoint-05 --output-on-failure"
+  },
+  "starter": {
+    "sha256": "64fd161fa5ee2fa1066987b0cb268b9e987ebd68d09da4a0e23aeb73ffd298e2",
+    "lockedFeatures": [
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ]
+  },
+  "solution": {
+    "sha256": "581b809e05ed8017467498ae7d1550abc868fa14d8dfe9f64858c52c404b1d94",
+    "lockedFeatures": [
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ],
+    "canonicalReference": false
+  },
+  "answerDiff": {
+    "path": "answer.patch",
+    "sha256": "00763efde582b1283a6d80f145d291cf1c0c2ff124d3fe1681bb4884be86190c"
+  },
+  "previousCheckpointDiff": {
+    "path": "from_previous.patch",
+    "sha256": "00763efde582b1283a6d80f145d291cf1c0c2ff124d3fe1681bb4884be86190c",
+    "from": "04_tool_dispatch"
+  }
+}

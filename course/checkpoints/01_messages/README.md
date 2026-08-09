@@ -13,3 +13,6 @@ Serialize `system`, `user`, and `assistant` messages and reconstruct the statele
 
 The JSON round-trip test passes and the student can point to every item supplied to the model.
 
+## Materialize
+
+Run `node course/scripts/checkpoints.mjs materialize 01_messages starter` from the repository root. Compare with the `solution` variant only after recording the learner evidence.

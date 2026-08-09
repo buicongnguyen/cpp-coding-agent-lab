@@ -1,0 +1,6 @@
+{"kind":"fixture_metadata","provenance":"authored_deterministic_fixture","captured_from_executable":false,"scenario":"malformed_argument_denial","expected_stop":"safe_protocol_completion","schema_version":2}
+{"kind":"model_response","iteration":1,"detail":{"content":"","finish_reason":"tool_calls","model":"scripted/malformed-fixture","tool_call_count":1}}
+{"kind":"tool_request","iteration":1,"tool":"read_file","tool_call_id":"bad-args-1","detail":{"path":42}}
+{"kind":"tool_result","iteration":1,"tool":"read_file","tool_call_id":"bad-args-1","authorization":"not_evaluated","status":"error","detail":{"ok":false,"data":null,"error":{"code":"invalid_arguments","message":"Missing or non-string argument: path"}},"executed":false}
+{"kind":"model_response","iteration":2,"detail":{"content":"I could not read the file because my arguments were invalid; no local action was performed.","finish_reason":"stop","model":"scripted/malformed-fixture","tool_call_count":0}}
+{"kind":"stop","iteration":2,"detail":"completed_without_task_success","task_success":false}

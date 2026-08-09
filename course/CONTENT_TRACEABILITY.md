@@ -1,6 +1,6 @@
 # Supplied-brief traceability
 
-Reviewed: 2026-08-08 | Source: `../Info.txt`
+Reviewed: 2026-08-09 | Source: `../Info.txt`
 
 | Supplied promise/topic | Delivered treatment | Verification artifact |
 |---|---|---|
@@ -10,11 +10,11 @@ Reviewed: 2026-08-08 | Source: `../Info.txt`
 | System prompts change behavior | Five-block prompt, four controlled variants, observable metrics | Chapter/lab/assessment 2 |
 | System/user/assistant roles | Causal typed messages plus the later API `tool` result role | Chapters 2, 4, and trace tests |
 | Tool schema and calls | Definition/call/execution/result separation; strict schemas; paused raw-call demo | Chapter/lab/assessment 3 |
-| Read/write/command execution and results | Workspace-confined read/write/list; symbolic configure/build/test; correlated envelopes | Chapter/lab/assessment 4 and dispatcher tests |
+| Read/write/command execution and results | Workspace-confined read/write; symbolic configure/build/test; correlated envelopes; listing intentionally deferred | Chapter/lab/assessment 4 and dispatcher tests |
 | Think/request/execute/observe/repeat | Bounded loop with tool/iteration/repetition/time stops and non-empty completion | Chapter/lab/assessment 5 and scripted repair |
-| Turns and context | Explicit history, event accounting, usage/cost, compaction and current state APIs | Chapter/lab/assessment 6 and JSONL trace |
-| Prevent agents going off the rails | Least privilege, injection/agency/output threats, isolation, approvals, evals | Chapter/lab/assessment 7 and eval cases |
-| Agent modifies its own source | Isolated vertical `list_files` change, diff review, focused boundary tests, evidence ladder | Chapter/lab/assessment 8 |
+| Turns and context | Explicit history, event accounting, usage/cost, and a provenance-preserving retention/compaction policy comparison | Chapter/lab/assessment 6 and JSONL trace |
+| Prevent agents going off the rails | Least privilege, injection/agency/output threats, a tested write-approval extension point, child-environment allowlisting, and executable evals; the CLI auto-allows bounded writes and full process/network isolation remains an explicit production boundary | Chapter/lab/assessment 7, dispatcher/child tests, and E1–E7 |
+| Agent modifies its own source | Generated capstone starter without `list_files`, vertical answer patch, isolated apply/build/test fallback, focused boundary tests, and a separate learner human-review gate | Chapter/lab/assessment 8, checkpoint 08, and `demos/capstone_trace.jsonl`; the fallback explicitly does not evidence a model-authored change or human approval |
 | Read, write, compile, repair | Two-stage compile/behavior fixture repair | `demos/full_repair_trace.jsonl`, CTest |
 
 ## Intentional corrections
@@ -22,4 +22,4 @@ Reviewed: 2026-08-08 | Source: `../Info.txt`
 - Live OpenRouter remains supported but is optional for completion; deterministic mode prevents provider/network variability from blocking the workshop.
 - “Send the entire conversation every time” is taught as this course's explicit-history implementation, with a current note on provider-managed state.
 - Arbitrary `run_command(command)` is narrowed to an action enum to preserve the learning goal without teaching an unsafe shell boundary.
-- `list_files` is available in the canonical solution for testing and demonstration; learners add or refine it as the self-modification vertical slice.
+- The checkpoint 08 starter deliberately omits and rejects `list_files`; applying its reviewed answer patch produces the byte-identical canonical solution. The recorded deterministic capstone fallback is not presented as a live-model sample.

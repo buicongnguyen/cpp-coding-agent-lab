@@ -1,6 +1,6 @@
 # Chapter 5 — The bounded agentic loop
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 60 minutes  
 Checkpoint: `05_agent_loop`
 
@@ -10,7 +10,7 @@ Checkpoint: `05_agent_loop`
 |---|---|---|
 | Feedback loop | Each model decision sees the exact approved results of earlier calls. | Later steps become guesses. |
 | History invariant | Append the assistant proposal, then exactly one result per executed call. | Correlation and causal replay break. |
-| Hard limits | Iteration, tool, repetition, process, and wall-clock budgets guarantee termination. | A pathological run can continue indefinitely. |
+| Hard limits | Iteration, tool, and repetition budgets bound scheduling between calls; provider/process timeouts must bound synchronous in-flight work. | A pathological run can continue indefinitely. |
 | Recovery semantics | Tool failures become evidence; provider failures are harness-level events. | Errors are hidden or retried unsafely. |
 | Progress and success | Loop completion is not task success; current deterministic verification is. | Fluent final text can mask a failing project. |
 | Traceability | Structured events reconstruct what was known, allowed, changed, and verified. | Failures cannot be diagnosed or evaluated reliably. |
@@ -66,12 +66,12 @@ The generic reference loop does not store this enum, but its branches implement 
 
 ## Stopping is a feature
 
-The reference `AgentLimits` bounds:
+The reference `LoopConfig` bounds:
 
 - model iterations;
 - total tool calls;
 - consecutive identical calls;
-- wall-clock duration.
+- the scheduling deadline checked between model/tool calls.
 
 It also rejects a final assistant message with no tool calls and no content. These conditions distinguish a controlled state machine from `while(true)`.
 
@@ -85,7 +85,7 @@ Limits answer different questions:
 - tool-call limit: how many local proposals may execute;
 - repetition limit: is the run making the same immediate request without new evidence;
 - process timeout: can one child action monopolize the run;
-- wall-clock limit: what is the maximum end-to-end duration;
+- loop deadline: when must the orchestrator stop scheduling another call (with separate provider/process timeouts for work already in flight);
 - user cancellation: does a human retain control now.
 
 Return the specific stop reason and current counters. “Stopped” without the exhausted budget is not actionable.
@@ -176,6 +176,28 @@ success = protocol_completed
 ```
 
 The “after latest source write” clause is essential. A green test from before the change is stale evidence. Other tasks should define a different verifier predicate rather than reuse this one blindly.
+
+## Evidence freshness is loop state
+
+Freshness should be represented as state, not recovered from the assistant's wording. At the beginning of a repair run, build and test evidence are unknown. A successful build marks build evidence current; a successful test marks test evidence current. Any source write invalidates both marks because the verified artifact no longer corresponds to the current workspace. A later failed build is current evidence too, but it proves the negative fact that the present source does not build.
+
+One compact state model is:
+
+```text
+source revision changes → build = stale, test = stale
+current build exits 0   → build = passing/current
+current build exits !=0 → build = failing/current, test cannot close task
+current test exits 0    → test = passing/current
+protocol completion     → allowed only if the task predicate accepts current state
+```
+
+The reference loop can optionally require fresh build and test evidence before accepting final prose. This policy is deliberately configurable: a read-only explanation should not be forced to compile, while the repair and capstone paths should fail closed. The important design move is that the harness, not the model, owns the evidence ledger. “I already tested it” is a claim; a correlated tool result after the most recent write is proof.
+
+Freshness also exposes a subtle build-system problem. Incremental tools use filesystem metadata and dependency graphs to decide whether work is necessary. Rapid demonstrations, copied fixtures, or equal-size edits can produce a misleading “no work” result on filesystems with coarse timestamps. The deterministic workshop build therefore uses CMake's clean-first build mode. This costs a little time but ensures the compile result was produced from the current source rather than an older object file. Production systems may instead combine content hashes, isolated build directories, and precise dependency tracking, but the chosen mechanism must make the freshness claim honest.
+
+Replay the false-success case explicitly. Start with a passing fixture, run build and test, then introduce a source defect and let the scripted model immediately report completion. A correct completion policy rejects the final message because the write invalidated both green marks. Now run build again and observe failure: the evidence is fresh but negative, so the task still cannot close. Repair the defect, build, and test once more; only those post-write results satisfy the predicate. This four-step trace teaches more than a general warning because learners can identify the exact transition at which each fact becomes stale or current.
+
+Keep protocol outcome, task outcome, and stop outcome separate in `LoopResult`. A model may produce valid nonempty final content, so the protocol completes, while the evaluator rejects the task for stale verification. A run may also stop on cancellation or a limit without either kind of completion. These categories let tests assert the actual failure and help operators decide whether to revise the task, inspect a policy rejection, or resume from durable evidence.
 
 ## Trace as a state-machine proof
 

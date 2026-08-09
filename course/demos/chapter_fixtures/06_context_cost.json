@@ -1,0 +1,9 @@
+{
+  "fixture_kind": "authored_deterministic_wire_fixture",
+  "chapter": 6,
+  "captured_live": false,
+  "purpose": "Show explicit usage accounting and evidence-preserving context compression.",
+  "request": {"body": {"model": "scripted/course-model", "messages": [{"role": "system", "content": "Earlier build event 14 exited 1 for a missing semicolon; event 22 later exited 0 after the edit. Full logs remain in the local trace."}, {"role": "user", "content": "State the freshest build evidence."}]}},
+  "response": {"body": {"model": "scripted/course-model", "choices": [{"message": {"role": "assistant", "content": "The freshest build evidence is event 22 with exit code 0 after the edit; the earlier failure is superseded."}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 46, "completion_tokens": 24, "reasoning_tokens": 0, "cached_tokens": 0, "cost": 0}}},
+  "teaching_note": "Values are deterministic fixture data, not provider billing evidence."
+}

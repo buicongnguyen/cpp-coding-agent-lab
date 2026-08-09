@@ -1,5 +1,6 @@
 #include "course_agent/types.hpp"
 
+#include <set>
 #include <stdexcept>
 
 namespace course_agent {
@@ -49,17 +50,26 @@ Message assistant_message_from_json(const Json& value) {
 
     Message result;
     result.role = value.contains("role") ? value.at("role").string_or("assistant") : "assistant";
+    if (result.role != "assistant") throw std::runtime_error("Model response message role must be assistant");
     if (value.contains("content") && value.at("content").is_string()) result.content = value.at("content").as_string();
 
     if (value.contains("tool_calls")) {
         if (!value.at("tool_calls").is_array()) throw std::runtime_error("tool_calls must be an array");
+        std::set<std::string> call_ids;
         for (const Json& encoded : value.at("tool_calls").as_array()) {
+            if (!encoded.is_object()) throw std::runtime_error("Each tool call must be a JSON object");
             ToolCall call;
             call.id = encoded.at("id").as_string();
+            if (call.id.empty() || !call_ids.insert(call.id).second) {
+                throw std::runtime_error("Tool call IDs must be non-empty and unique within a response");
+            }
             const Json& function = encoded.at("function");
+            if (!function.is_object()) throw std::runtime_error("Tool call function must be a JSON object");
             call.name = function.at("name").as_string();
+            if (call.name.empty()) throw std::runtime_error("Tool call function name must not be empty");
             const Json& arguments = function.at("arguments");
             call.arguments = arguments.is_string() ? Json::parse(arguments.as_string()) : arguments;
+            if (!call.arguments.is_object()) throw std::runtime_error("Tool call arguments must decode to a JSON object");
             result.tool_calls.push_back(std::move(call));
         }
     }
@@ -99,4 +109,3 @@ ModelResponse model_response_from_json(const Json& value) {
 }
 
 } // namespace course_agent
-

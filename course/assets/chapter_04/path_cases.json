@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "workspace_placeholder": "<WORKSPACE>",
+  "cases": [
+    {"id":"PATH_01","input":"src/calculator.cpp","platform":"all","expected":"allow","reason":"relative descendant"},
+    {"id":"PATH_02","input":"./src/../src/calculator.cpp","platform":"all","expected":"allow","reason":"normalizes inside root"},
+    {"id":"PATH_03","input":"../secret.txt","platform":"all","expected":"deny","error_code":"path_outside_workspace"},
+    {"id":"PATH_04","input":"src/../../secret.txt","platform":"all","expected":"deny","error_code":"path_outside_workspace"},
+    {"id":"PATH_05","input":"/etc/passwd","platform":"posix","expected":"deny","error_code":"path_outside_workspace"},
+    {"id":"PATH_06","input":"C:\\Windows\\win.ini","platform":"windows","expected":"deny","error_code":"path_outside_workspace"},
+    {"id":"PATH_07","input":"C:relative-drive-path.txt","platform":"windows","expected":"deny","error_code":"path_outside_workspace"},
+    {"id":"PATH_08","input":"missing.txt","platform":"all","expected":"structured_failure","error_code":"not_a_file"},
+    {"id":"PATH_09","input":"large_fixture.txt","platform":"all","expected":"structured_failure","error_code":"file_too_large"},
+    {"id":"PATH_10","input":"binary_fixture.bin","platform":"all","expected":"structured_failure","error_code":"binary_file"},
+    {"id":"PATH_11","input":"link_to_outside/secret.txt","platform":"symlink-capable","expected":"deny","error_code":"path_outside_workspace"},
+    {"id":"PATH_12","input":"new/subdir/file.txt","platform":"all","expected":"structured_failure","error_code":"path_not_found","reason":"the requested path has no accessible existing parent"}
+  ]
+}

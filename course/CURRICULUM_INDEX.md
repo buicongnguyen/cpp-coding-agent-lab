@@ -1,8 +1,8 @@
 # Curriculum delivery index
 
-Last verified: 2026-08-08
+Last verified: 2026-08-09
 
-This is the instructor's front door to the executed course. Each row links the manuscript, hands-on lab, instructor runbook, slide outline, and assessment. The canonical C++ implementation is in `reference/`; checkpoint manifests explain the cumulative learner state without duplicating source trees.
+This is the instructor's front door to the executed course. Each row links the manuscript, hands-on lab, instructor runbook, chapter deck outline, assessment, and materialized learner state. The canonical C++ implementation is in `reference/`; `scripts/checkpoints.mjs` generates runnable starters and solutions without maintaining duplicate source trees.
 
 | Chapter | Manuscript | Lab | Instructor | Slides | Assessment | Checkpoint |
 |---|---|---|---|---|---|---|
@@ -16,4 +16,4 @@ This is the instructor's front door to the executed course. Each row links the m
 | 7. Safety and evals | [Read](chapters/07_safety_and_evals.md) | [Lab](labs/07_safety_and_evals.md) | [Guide](instructor/07_safety_and_evals.md) | [Slides](slides/07_safety_and_evals.md) | [Check](assessments/07_safety_and_evals.md) | [State](checkpoints/07_safe_agent/README.md) |
 | 8. Self-modification | [Read](chapters/08_self_modification.md) | [Lab](labs/08_self_modification.md) | [Guide](instructor/08_self_modification.md) | [Slides](slides/08_self_modification.md) | [Check](assessments/08_self_modification.md) | [State](checkpoints/08_capstone_solution/README.md) |
 
-Before delivery, run the reference tests, run `agent_preflight` in deterministic mode, and review `sources/RESEARCH_INDEX.md`. Retest live-provider examples two weeks and two days before class.
+Facilitate from [`slides/Coding_Agent_Workshop.pptx`](slides/Coding_Agent_Workshop.pptx), then close the day with [`WRAP_UP.md`](WRAP_UP.md). Before delivery, run `verify_materials.ps1`, `node scripts/checkpoints.mjs check`, the reference tests, E1–E7, and deterministic `agent_preflight`; then review [`DELIVERY_GATES.md`](DELIVERY_GATES.md) and `sources/RESEARCH_INDEX.md`. Retest live-provider examples two weeks and two days before class.

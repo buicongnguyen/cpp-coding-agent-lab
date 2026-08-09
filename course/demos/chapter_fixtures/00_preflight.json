@@ -1,0 +1,16 @@
+{
+  "fixture_kind": "authored_deterministic_wire_fixture",
+  "chapter": 0,
+  "captured_live": false,
+  "purpose": "Minimal request anatomy and sanitized response fallback.",
+  "request": {
+    "method": "POST",
+    "path": "/api/v1/chat/completions",
+    "headers": {"Authorization": "Bearer <never-record-the-key>", "Content-Type": "application/json"},
+    "body": {"model": "pinned-tool-model-placeholder", "messages": [{"role": "user", "content": "Reply with the word preflight."}]}
+  },
+  "response": {
+    "status": 200,
+    "body": {"id": "req_fixture_00", "model": "pinned-tool-model-placeholder", "choices": [{"message": {"role": "assistant", "content": "preflight"}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 11, "completion_tokens": 2, "total_tokens": 13}}
+  }
+}

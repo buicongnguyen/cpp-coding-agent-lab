@@ -1,6 +1,6 @@
 # Chapter 6 — Turns, context, tokens, and cost
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 30 minutes  
 Checkpoint: `06_trace_and_limits`
 

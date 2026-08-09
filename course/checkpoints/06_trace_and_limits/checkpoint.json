@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "order": 6,
+  "id": "06_trace_and_limits",
+  "title": "Trace and limits",
+  "feature": "trace_and_limits",
+  "testLabel": "checkpoint-06",
+  "focusFiles": [
+    "include/course_agent/agent_loop.hpp",
+    "src/agent_loop.cpp"
+  ],
+  "releaseGate": "Every model/tool transition records iteration, call ID, result, usage, elapsed time, and stop reason.",
+  "materialize": {
+    "both": "node course/scripts/checkpoints.mjs materialize 06_trace_and_limits",
+    "starter": "node course/scripts/checkpoints.mjs materialize 06_trace_and_limits starter",
+    "solution": "node course/scripts/checkpoints.mjs materialize 06_trace_and_limits solution"
+  },
+  "verify": {
+    "configure": "cmake -S . -B build",
+    "build": "cmake --build build --config Debug",
+    "test": "ctest --test-dir build -C Debug -L checkpoint-06 --output-on-failure"
+  },
+  "starter": {
+    "sha256": "581b809e05ed8017467498ae7d1550abc868fa14d8dfe9f64858c52c404b1d94",
+    "lockedFeatures": [
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ]
+  },
+  "solution": {
+    "sha256": "977f23ba203c0656717010f25d0bdcfb0d4eb7e1464261f526fe3ae8aabca993",
+    "lockedFeatures": [
+      "canonical_safety",
+      "list_files"
+    ],
+    "canonicalReference": false
+  },
+  "answerDiff": {
+    "path": "answer.patch",
+    "sha256": "49f7369d3457ffd476bdd94a1379a7be1bd4bd342b801b9792e3531c4cce0050"
+  },
+  "previousCheckpointDiff": {
+    "path": "from_previous.patch",
+    "sha256": "49f7369d3457ffd476bdd94a1379a7be1bd4bd342b801b9792e3531c4cce0050",
+    "from": "05_agent_loop"
+  }
+}

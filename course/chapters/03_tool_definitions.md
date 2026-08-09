@@ -1,6 +1,6 @@
 # Chapter 3 — Tool definitions and tool requests
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 45 minutes  
 Checkpoint: `03_tool_schema`
 
@@ -114,7 +114,7 @@ Descriptions should be operational. Compare:
 
 The better description helps tool selection and sets expectations about encoding and scope. It still does not promise that every relative path is permitted or exists.
 
-The other course definitions follow the same pattern. `write_file` requires `path` and `content`. `list_files` requires a relative directory path. `run_command` requires an `action` whose enum is limited to `configure`, `build`, and `test`. Enums improve both planning and validation: the model sees the available capability and cannot invent a fourth command that the dispatcher accidentally interprets.
+The other definitions at this checkpoint follow the same pattern. `write_file` requires `path` and `content`. `run_command` requires an `action` whose enum is limited to `configure`, `build`, and `test`. Enums improve both planning and validation: the model sees the available capability and cannot invent a fourth command that the dispatcher accidentally interprets. The `list_files` definition is intentionally absent until the Chapter 8 capstone; this makes adding a genuinely new vertical capability observable instead of asking learners to reimplement something already advertised.
 
 ## Inspect the provider-neutral types
 

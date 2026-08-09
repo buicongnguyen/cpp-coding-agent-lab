@@ -1,6 +1,6 @@
 # Chapter 2 — System instructions and message roles
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 40 minutes  
 Checkpoint: `02_prompt_lab`
 

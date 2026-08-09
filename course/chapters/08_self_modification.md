@@ -1,6 +1,6 @@
 # Chapter 8 — Self-modification capstone
 
-Last verified: 2026-08-08  
+Last verified: 2026-08-09
 Class time: 50 minutes  
 Checkpoint: `08_capstone_solution`
 

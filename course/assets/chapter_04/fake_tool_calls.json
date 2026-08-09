@@ -1,0 +1,23 @@
+{
+  "fixture_kind": "authored_dispatcher_cases",
+  "schema_version": 2,
+  "not_model_output": true,
+  "chapter_checkpoint": "04_tool_dispatch",
+  "published_tools": ["read_file", "write_file", "run_command"],
+  "deferred_capability": "list_files is intentionally absent until checkpoint 08",
+  "cases": [
+    {"id":"READ_OK","call":{"id":"call-r1","name":"read_file","arguments":{"path":"README.md"}},"expect":{"ok":true,"data_fields":["path","bytes","content"],"error":null}},
+    {"id":"READ_MISSING","call":{"id":"call-r2","name":"read_file","arguments":{"path":"missing.txt"}},"expect":{"ok":false,"data":null,"error_code":"not_a_file"}},
+    {"id":"READ_ESCAPE","call":{"id":"call-r3","name":"read_file","arguments":{"path":"../secret.txt"}},"expect":{"ok":false,"data":null,"error_code":"path_outside_workspace"}},
+    {"id":"READ_OVERSIZED","call":{"id":"call-r4","name":"read_file","arguments":{"path":"large_fixture.txt"}},"fixture_setup":{"file_bytes":65537},"expect":{"ok":false,"data":null,"error_code":"file_too_large"}},
+    {"id":"READ_BAD_TYPE","call":{"id":"call-r5","name":"read_file","arguments":{"path":7}},"expect":{"ok":false,"data":null,"error_code":"invalid_arguments"}},
+    {"id":"WRITE_OK","call":{"id":"call-w1","name":"write_file","arguments":{"path":"result.txt","content":"bounded synthetic text"}},"expect":{"ok":true,"data_fields":["path","bytes_written"],"error":null}},
+    {"id":"WRITE_ESCAPE","call":{"id":"call-w2","name":"write_file","arguments":{"path":"../result.txt","content":"blocked"}},"expect":{"ok":false,"data":null,"error_code":"path_outside_workspace"}},
+    {"id":"WRITE_OVERSIZED","call_template":{"id":"call-w3","name":"write_file","arguments":{"path":"result.txt","content":"<materialize as 65,537 ASCII x bytes>"}},"fixture_setup":{"content_bytes":65537},"expect":{"ok":false,"data":null,"error_code":"content_too_large"}},
+    {"id":"WRITE_EXTRA_FIELD","call":{"id":"call-w4","name":"write_file","arguments":{"path":"result.txt","content":"x","mode":"append"}},"expect":{"ok":false,"data":null,"error_code":"invalid_arguments"}},
+    {"id":"COMMAND_BUILD_OBSERVED_FAILURE","call":{"id":"call-c1","name":"run_command","arguments":{"action":"build"}},"expect":{"ok":true,"data":{"action":"build","exit_code":1,"output":"<bounded compiler output>","timed_out":false,"truncated":false},"error":null,"note":"execution succeeded; child outcome failed"}},
+    {"id":"COMMAND_TEST_OK","call":{"id":"call-c2","name":"run_command","arguments":{"action":"test"}},"expect":{"ok":true,"data":{"action":"test","exit_code":0,"output":"<bounded CTest output>","timed_out":false,"truncated":false},"error":null}},
+    {"id":"COMMAND_UNAPPROVED_ACTION","call":{"id":"call-c3","name":"run_command","arguments":{"action":"shell"}},"expect":{"ok":false,"data":null,"error_code":"action_not_allowed","executed":false}},
+    {"id":"UNKNOWN_TOOL","call":{"id":"call-u1","name":"delete_repository","arguments":{}},"expect":{"ok":false,"data":null,"error_code":"unknown_tool","process_continues":true}}
+  ]
+}

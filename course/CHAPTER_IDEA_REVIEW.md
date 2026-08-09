@@ -1,6 +1,6 @@
 # Main-idea clarity and web-research review
 
-Reviewed: 2026-08-08  
+Reviewed: 2026-08-09
 Scope: all nine chapter manuscripts in `course/chapters/`
 
 ## Review method
@@ -34,7 +34,7 @@ Primary basis: [OpenRouter quickstart](https://openrouter.ai/docs/quickstart), [
 | Evidence versus inference | The labels lacked a repeatable review procedure. | Added provenance, freshness, completeness, and falsifiability questions. | Every key diagnosis claim points to an event and a possible verifier. |
 | State | “Stateless” risked sounding universal. | Compared explicit replay, previous-response chaining, and durable conversations. | Learner names who stores/references state in each pattern. |
 | Hallucination | A refusal/guess comparison could invite overgeneralized model claims. | Added a response-interpretation table and cautious research framing. | Conclusion is limited to request bytes and observed response. |
-| History integrity | Correlation was present but ownership/immutability was implicit. | Added immutable raw evidence and labeled derived-summary rules. | Raw call/result remains available after compaction. |
+| History integrity | Correlation was present but ownership/immutability was implicit. | Added immutable raw-trace evidence and labeled derived-summary rules. | Raw call/result remains available after any proposed active-context compaction. |
 
 Primary basis: [OpenAI conversation state](https://developers.openai.com/api/docs/guides/conversation-state), [OpenAI function calling](https://developers.openai.com/api/docs/guides/function-calling), and the [2026 Nature study](https://www.nature.com/articles/s41586-026-10549-w).
 
@@ -108,7 +108,7 @@ Primary basis: [OpenAI conversation state](https://developers.openai.com/api/doc
 | Threat model | Threats and controls were listed without threat/vulnerability/failure distinction. | Added precise vocabulary and remediation implications. | Finding names cause, weakness, observed event, and impact. |
 | Excessive agency | Least privilege was present but its three dimensions were implicit. | Separated excessive functionality, permissions, and autonomy. | Controls address each dimension independently. |
 | Output handling | Shell example dominated. | Added HTML, SQL, URL, and filesystem interpreter boundaries. | Output is validated/encoded for its destination context. |
-| Isolation/approval | Good controls needed a sharper guarantee statement. | Reaffirmed workspace confinement is not process isolation and approval must be exact/timely. | Untrusted build runs without host credentials/network authority. |
+| Isolation/approval | Good controls needed a sharper guarantee statement. | Reaffirmed workspace confinement is not process isolation, added exact write approval and a child-environment allowlist, and kept network isolation as a separate deployment control. | Sentinel parent secrets are absent in child tests; any network-isolation claim requires separate sandbox evidence. |
 | Evaluation | Three test categories lacked a standardized case schema. | Added eval record fields, positive controls, and human calibration. | A reject-everything implementation fails allowed cases. |
 | Current practice | “Evals, not vibes” lacked direct current-method support. | Added eval-driven, task-specific, logged, automated, human-calibrated guidance. | Deterministic policy tests precede prompt tuning. |
 

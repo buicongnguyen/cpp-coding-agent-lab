@@ -13,3 +13,6 @@ Append the assistant call before its correlated tool results and stop on final t
 
 The deterministic `compile-fix` scenario builds the fixture and every executed call has exactly one result.
 
+## Materialize
+
+Run `node course/scripts/checkpoints.mjs materialize 05_agent_loop starter` from the repository root. Compare with the `solution` variant only after recording the learner evidence.

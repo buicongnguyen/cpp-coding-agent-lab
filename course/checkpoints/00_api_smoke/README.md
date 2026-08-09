@@ -17,3 +17,6 @@ Build `agent_preflight`, run deterministic mode, and identify the model, finish 
 
 `agent_preflight` prints `Mock model is ready.` without an API key.
 
+## Materialize
+
+Run `node course/scripts/checkpoints.mjs materialize 00_api_smoke starter` from the repository root. Compare with the `solution` variant only after recording the learner evidence.

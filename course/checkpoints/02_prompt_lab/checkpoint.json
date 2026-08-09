@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "order": 2,
+  "id": "02_prompt_lab",
+  "title": "Prompt laboratory",
+  "feature": "system_prompt",
+  "testLabel": null,
+  "focusFiles": [
+    "src/main.cpp"
+  ],
+  "releaseGate": "The system prompt states the goal, evidence policy, action boundary, and completion evidence.",
+  "materialize": {
+    "both": "node course/scripts/checkpoints.mjs materialize 02_prompt_lab",
+    "starter": "node course/scripts/checkpoints.mjs materialize 02_prompt_lab starter",
+    "solution": "node course/scripts/checkpoints.mjs materialize 02_prompt_lab solution"
+  },
+  "verify": {
+    "configure": "cmake -S . -B build",
+    "build": "cmake --build build --config Debug",
+    "test": null
+  },
+  "starter": {
+    "sha256": "a31bbc336e26be5ba31bb06436d8b9524b955c8cfe9861c5d7708387c00d0135",
+    "lockedFeatures": [
+      "system_prompt",
+      "tool_schema",
+      "tool_dispatch",
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ]
+  },
+  "solution": {
+    "sha256": "62a464a5a161dd1263a2960d523d36b639d8b426cb7f45b48978d0332b42a945",
+    "lockedFeatures": [
+      "tool_schema",
+      "tool_dispatch",
+      "agent_loop",
+      "trace_and_limits",
+      "canonical_safety",
+      "list_files"
+    ],
+    "canonicalReference": false
+  },
+  "answerDiff": {
+    "path": "answer.patch",
+    "sha256": "645a7376ee8afc5839e1ddd62276206baa084c749fe578eac85962d39b086a50"
+  },
+  "previousCheckpointDiff": {
+    "path": "from_previous.patch",
+    "sha256": "645a7376ee8afc5839e1ddd62276206baa084c749fe578eac85962d39b086a50",
+    "from": "01_messages"
+  }
+}

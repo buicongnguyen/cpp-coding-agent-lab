@@ -1,0 +1,9 @@
+{
+  "fixture_kind": "authored_deterministic_wire_fixture",
+  "chapter": 1,
+  "captured_live": false,
+  "purpose": "Show that a local secret not included in the request is outside model context.",
+  "request": {"body": {"model": "scripted/course-model", "messages": [{"role": "user", "content": "Read secret_number.txt on my laptop and tell me the number."}]}},
+  "response": {"body": {"model": "scripted/course-model", "choices": [{"message": {"role": "assistant", "content": "I was not given that file or a file-reading tool, so I cannot observe its value."}, "finish_reason": "stop"}], "usage": {"prompt_tokens": 22, "completion_tokens": 19}}},
+  "teaching_limit": "This stable response demonstrates the boundary; a live model may instead refuse, hedge, or guess. None can prove access."
+}

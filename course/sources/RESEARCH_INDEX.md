@@ -1,6 +1,6 @@
 # Research-maintenance index
 
-Last verified: 2026-08-08
+Last verified: 2026-08-09
 
 This course distinguishes stable concepts from provider behavior that must be retested before delivery.
 

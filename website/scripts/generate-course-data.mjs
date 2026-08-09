@@ -80,7 +80,7 @@ const chapterDefinitions = [
     outcome: "Validate, authorize, execute, and correlate three local tools safely.",
     selfPacedTime: 95,
     mission: "Turn a model proposal into a controlled local effect with no hidden jump.",
-    upgrade: "A five-stage dispatcher for read, write, list, build, and test",
+    upgrade: "A five-stage dispatcher for read, write, configure, build, and test",
     failure: "Correct JSON crosses the authority boundary unchecked",
     proof: "Allowed calls succeed while path escape, free-form commands, and bad IDs fail",
   },
@@ -112,7 +112,7 @@ const chapterDefinitions = [
     mission: "Account for every message, token category, and repeated byte in a run.",
     upgrade: "Structured tracing, usage accounting, and explicit context policy",
     failure: "Conversation growth is invisible until cost or context limits fail",
-    proof: "Trace totals reconcile and the latest verifier remains exact after compaction",
+    proof: "Trace totals reconcile and the latest verifier remains exact after a proposed retention policy",
   },
   {
     id: 7,
@@ -146,9 +146,115 @@ const chapterDefinitions = [
   },
 ];
 
+const workshopDelivery = {
+  0: {
+    focus: "Classify the boundary, run preflight, and leave with one controlled failure you can explain.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The puzzle: who repaired the code?",
+      "Why two execution modes",
+      "Read the preflight, not just the answer",
+      "What you should now be able to explain",
+    ],
+  },
+  1: {
+    focus: "Separate observation from inference, then prove what crossed the model boundary.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The failure: a confident guess about a file",
+      "Evidence, inference, and action",
+      "Design the secret-file experiment carefully",
+      "What you should now be able to explain",
+    ],
+  },
+  2: {
+    focus: "Run one controlled instruction experiment and defend which behavior belongs in policy.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The failure: four prompts, four different agents",
+      "A five-block system instruction",
+      "Controlled prompt experiment",
+      "Prompt versus policy",
+      "What you should now be able to explain",
+    ],
+  },
+  3: {
+    focus: "Design a narrow contract, inspect the raw call, and stop before execution.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The failure: a call is not an execution",
+      "Design the narrowest contract",
+      "Parse defensively",
+      "A complete paused experiment",
+      "What you should now be able to explain",
+    ],
+  },
+  4: {
+    focus: "Trace proposal through validation, authorization, execution, and correlated evidence.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The failure: correct JSON, dangerous authority",
+      "The dispatch pipeline",
+      "Workspace confinement",
+      "Manual round trip",
+      "Test the policy without a model",
+      "What you should now be able to explain",
+    ],
+  },
+  5: {
+    focus: "Reconstruct the feedback loop and prove both progress and bounded stopping.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The failure: one tool call is not an agent",
+      "Loop invariants",
+      "Stopping is a feature",
+      "Walk through the repair fixture",
+      "Progress, verification, and stopping policy",
+      "What you should now be able to explain",
+    ],
+  },
+  6: {
+    focus: "Read the trace as a ledger and choose an explicit retention and budget policy.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The failure: “three turns” produced eleven requests",
+      "Why history grows",
+      "Read the JSONL trace as a ledger",
+      "Budgeting before a run",
+      "What you should now be able to explain",
+    ],
+  },
+  7: {
+    focus: "Map each threat to an enforced control and a deterministic adversarial case.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The failure: the prompt said no",
+      "Threat model for this small agent",
+      "Evals, not vibes",
+      "Build a control matrix",
+      "What you should now be able to explain",
+    ],
+  },
+  8: {
+    focus: "Govern one self-change from proposal through focused diff and fresh verification.",
+    lessonSections: [
+      "What you'll learn and prove",
+      "The puzzle: can the agent safely change itself?",
+      "Capstone protocol",
+      "Review the diff as a human",
+      "Evidence ladder and review gate",
+      "What you should now be able to explain",
+    ],
+  },
+};
+
 function extractTitle(markdown, fallback) {
   const match = markdown.match(/^#\s+(.+)$/m);
   return match?.[1]?.trim() ?? fallback;
+}
+
+function extractH2Titles(markdown) {
+  return [...markdown.matchAll(/^##\s+(.+)$/gm)].map((match) => match[1].trim());
 }
 
 async function readCourseFile(relativePath) {
@@ -168,6 +274,15 @@ for (const definition of chapterDefinitions) {
   const entries = await Promise.all(
     Object.entries(documentPaths).map(async ([kind, relativePath]) => {
       const markdown = await readCourseFile(relativePath);
+      const allSections = extractH2Titles(markdown);
+      const requiredWorkshopSections =
+        kind === "lesson"
+          ? workshopDelivery[definition.id].lessonSections
+          : kind === "lab"
+            ? ["Goal and constraints", "Tasks", "Acceptance criteria"]
+            : kind === "exercise"
+              ? ["Questions"]
+              : allSections;
       return [
         kind,
         {
@@ -175,6 +290,7 @@ for (const definition of chapterDefinitions) {
           path: `course/${relativePath.replaceAll("\\", "/")}`,
           title: extractTitle(markdown, definition.shortTitle),
           markdown,
+          requiredWorkshopSections,
         },
       ];
     }),
@@ -182,6 +298,7 @@ for (const definition of chapterDefinitions) {
 
   chapters.push({
     ...definition,
+    workshopFocus: workshopDelivery[definition.id].focus,
     documents: Object.fromEntries(entries),
   });
 }
@@ -193,6 +310,12 @@ const resourceDefinitions = [
   { id: "research", title: "Research maintenance index", path: "sources/RESEARCH_INDEX.md" },
   { id: "logic-review", title: "Curriculum logic review", path: "LOGIC_REVIEW.md" },
   { id: "idea-review", title: "Chapter idea review", path: "CHAPTER_IDEA_REVIEW.md" },
+  { id: "wrap-up", title: "Course wrap-up and rubric", path: "WRAP_UP.md" },
+  { id: "delivery-gates", title: "Delivery gates", path: "DELIVERY_GATES.md" },
+  { id: "completion-matrix", title: "Production completion matrix", path: "PLAN_COMPLETION_MATRIX.md" },
+  { id: "pilot", title: "Pilot protocol and evidence record", path: "PILOT.md" },
+  { id: "assets", title: "Learner and instructor assets", path: "assets/README.md" },
+  { id: "demos", title: "Demonstration and trace catalog", path: "demos/README.md" },
 ];
 
 const resources = [];

@@ -1,0 +1,9 @@
+{
+  "fixture_kind": "authored_deterministic_wire_fixture",
+  "chapter": 2,
+  "captured_live": false,
+  "purpose": "Evidence-first prompt baseline for a request lacking repository context.",
+  "request": {"body": {"model": "scripted/course-model", "messages": [{"role": "system", "content_file": "course/assets/chapter_02/prompts/evidence_first_agent.txt"}, {"role": "user", "content": "Fix the bug in my calculator."}]}},
+  "response": {"body": {"model": "scripted/course-model", "choices": [{"message": {"role": "assistant", "content": "I need workspace source and current build/test evidence before identifying or changing a defect."}, "finish_reason": "stop"}]}},
+  "comparison_inputs": {"cases_file": "course/assets/chapter_02/cases.json", "outputs_file": "course/assets/chapter_02/deterministic_outputs.json"}
+}

@@ -1,6 +1,6 @@
 # Slide outline 7 — Safety and evals
 
-Last verified: 2026-08-08 | Target: 8 slides
+Last verified: 2026-08-09 | Target: 8 slides
 
 1. **Prediction:** system says “stay inside”; call says `../../private.txt`—what happens?
 2. **Prompt versus enforcement:** direct rejection trace.

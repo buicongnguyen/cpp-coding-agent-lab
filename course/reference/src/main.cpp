@@ -9,6 +9,8 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace {
 
@@ -40,6 +42,34 @@ void replace_all(std::string& value, const std::string& from, const std::string&
     while ((position = value.find(from, position)) != std::string::npos) {
         value.replace(position, from.size(), to);
         position += to.size();
+    }
+}
+
+void redact_json_strings(
+    course_agent::Json& value,
+    const std::vector<std::pair<std::string, std::string>>& replacements) {
+    if (value.is_string()) {
+        std::string text = value.as_string();
+        for (const auto& replacement : replacements) replace_all(text, replacement.first, replacement.second);
+        value = course_agent::Json(std::move(text));
+    } else if (value.is_array()) {
+        for (course_agent::Json& item : value.as_array()) redact_json_strings(item, replacements);
+    } else if (value.is_object()) {
+        for (auto& item : value.as_object()) redact_json_strings(item.second, replacements);
+    }
+}
+
+std::string redact_detail(
+    const std::string& detail,
+    const std::vector<std::pair<std::string, std::string>>& replacements) {
+    try {
+        course_agent::Json parsed = course_agent::Json::parse(detail);
+        redact_json_strings(parsed, replacements);
+        return parsed.dump();
+    } catch (const std::exception&) {
+        std::string result = detail;
+        for (const auto& replacement : replacements) replace_all(result, replacement.first, replacement.second);
+        return result;
     }
 }
 
@@ -96,6 +126,12 @@ int main(int argc, char** argv) {
         const std::filesystem::path normalized_workspace = std::filesystem::weakly_canonical(workspace);
         const std::string native_workspace = normalized_workspace.string();
         const std::string generic_workspace = normalized_workspace.generic_string();
+        std::vector<std::pair<std::string, std::string>> trace_replacements = {
+            {native_workspace, "<WORKSPACE>"},
+            {generic_workspace, "<WORKSPACE>"},
+        };
+        const std::string api_key = environment("OPENROUTER_API_KEY");
+        if (!api_key.empty()) trace_replacements.push_back({api_key, "<REDACTED_SECRET>"});
 
         std::ofstream trace_file;
         if (!trace_path.empty()) {
@@ -106,10 +142,9 @@ int main(int argc, char** argv) {
         const course_agent::LoopResult result = loop.run(
             system_prompt,
             prompt,
-            [&trace_file, &native_workspace, &generic_workspace](const course_agent::TraceEvent& event) {
+            [&trace_file, &trace_replacements](const course_agent::TraceEvent& event) {
                 course_agent::TraceEvent portable_event = event;
-                replace_all(portable_event.detail, native_workspace, "<WORKSPACE>");
-                replace_all(portable_event.detail, generic_workspace, "<WORKSPACE>");
+                portable_event.detail = redact_detail(portable_event.detail, trace_replacements);
                 const std::string line = course_agent::trace_event_to_json(portable_event).dump();
                 std::cout << line << '\n';
                 if (trace_file) trace_file << line << '\n';
@@ -120,7 +155,7 @@ int main(int argc, char** argv) {
         summary["stop_reason"] = result.stop_reason;
         summary["iterations"] = result.iterations;
         summary["tool_calls"] = result.tool_calls;
-        summary["final"] = result.final_text;
+        summary["final"] = redact_detail(result.final_text, trace_replacements);
         summary["prompt_tokens"] = result.cumulative_usage.prompt_tokens;
         summary["completion_tokens"] = result.cumulative_usage.completion_tokens;
         summary["cost"] = result.cumulative_usage.cost;

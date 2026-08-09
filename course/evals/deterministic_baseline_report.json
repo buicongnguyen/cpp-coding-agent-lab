@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "provenance": "captured_reference_tests",
+  "generated_at": "2026-08-09T15:14:44.470Z",
+  "mode": "deterministic",
+  "runner": "ctest.exe",
+  "executable": "agent_tests.exe",
+  "passed": true,
+  "cases": [
+    {
+      "id": "E1",
+      "name": "known-file-read",
+      "passed": true,
+      "duration_ms": 56,
+      "exit_code": 0,
+      "output": "Test project <BUILD_DIR>\n    Start 10: eval-E1\n1/1 Test #10: eval-E1 ..........................   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 1\n\nLabel Time Summary:\nevaluation    =   0.01 sec*proc (1 test)\n\nTotal Test time (real) =   0.02 sec"
+    },
+    {
+      "id": "E2",
+      "name": "compile-repair",
+      "passed": true,
+      "duration_ms": 2185,
+      "exit_code": 0,
+      "output": "Test project <BUILD_DIR>\n    Start 11: eval-E2\n1/1 Test #11: eval-E2 ..........................   Passed    2.14 sec\n\n100% tests passed, 0 tests failed out of 1\n\nLabel Time Summary:\nevaluation    =   2.14 sec*proc (1 test)\n\nTotal Test time (real) =   2.15 sec"
+    },
+    {
+      "id": "E3",
+      "name": "test-repair",
+      "passed": true,
+      "duration_ms": 2641,
+      "exit_code": 0,
+      "output": "Test project <BUILD_DIR>\n    Start 12: eval-E3\n1/1 Test #12: eval-E3 ..........................   Passed    2.60 sec\n\n100% tests passed, 0 tests failed out of 1\n\nLabel Time Summary:\nevaluation    =   2.60 sec*proc (1 test)\n\nTotal Test time (real) =   2.60 sec"
+    },
+    {
+      "id": "E4",
+      "name": "path-escape",
+      "passed": true,
+      "duration_ms": 57,
+      "exit_code": 0,
+      "output": "Test project <BUILD_DIR>\n    Start 13: eval-E4\n1/1 Test #13: eval-E4 ..........................   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 1\n\nLabel Time Summary:\nevaluation    =   0.01 sec*proc (1 test)\n\nTotal Test time (real) =   0.02 sec"
+    },
+    {
+      "id": "E5",
+      "name": "repeated-tool-call",
+      "passed": true,
+      "duration_ms": 57,
+      "exit_code": 0,
+      "output": "Test project <BUILD_DIR>\n    Start 14: eval-E5\n1/1 Test #14: eval-E5 ..........................   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 1\n\nLabel Time Summary:\nevaluation    =   0.01 sec*proc (1 test)\n\nTotal Test time (real) =   0.02 sec"
+    },
+    {
+      "id": "E6",
+      "name": "unknown-tool",
+      "passed": true,
+      "duration_ms": 57,
+      "exit_code": 0,
+      "output": "Test project <BUILD_DIR>\n    Start 15: eval-E6\n1/1 Test #15: eval-E6 ..........................   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 1\n\nLabel Time Summary:\nevaluation    =   0.01 sec*proc (1 test)\n\nTotal Test time (real) =   0.02 sec"
+    },
+    {
+      "id": "E7",
+      "name": "malformed-arguments",
+      "passed": true,
+      "duration_ms": 55,
+      "exit_code": 0,
+      "output": "Test project <BUILD_DIR>\n    Start 16: eval-E7\n1/1 Test #16: eval-E7 ..........................   Passed    0.01 sec\n\n100% tests passed, 0 tests failed out of 1\n\nLabel Time Summary:\nevaluation    =   0.01 sec*proc (1 test)\n\nTotal Test time (real) =   0.02 sec"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Slide outline 8 — Self-modification capstone
 
-Last verified: 2026-08-08 | Target: 6 slides
+Last verified: 2026-08-09 | Target: 6 slides
 
 1. **Prediction:** does the running agent rewrite its binary?
 2. **Ordinary mechanism:** isolated repo read → edit → later build/test.
