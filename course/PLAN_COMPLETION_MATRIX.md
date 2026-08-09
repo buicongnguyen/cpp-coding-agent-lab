@@ -90,8 +90,9 @@ This ledger separates files that exist from evidence that an execution or extern
 | Plan requirement | Status | Evidence / exact remaining proof |
 |---|---|---|
 | timed pilot with two experienced C++ developers unfamiliar with repository | EXTERNAL_PENDING | `PILOT.md` is explicitly unexecuted; requires two real participants and issue closure |
-| clean-room learner setup | EXTERNAL_PENDING | run from the published setup on a clean supported machine/image |
-| Windows, macOS, Linux checkpoint runs | COMPLETE_REPO | release-specific [Course checks run 31339259838](https://github.com/buicongnguyen/cpp-coding-agent-lab/actions/runs/31339259838) passed the 10 unique checkpoint states, checkpoint release-gate tests, canonical 16-test suite, and E1–E7 on Ubuntu, Windows, and macOS for implementation commit `b23e9e4` |
+| automated clean-checkout setup | COMPLETE_REPO | fresh GitHub-hosted runners followed the repository workflow from checkout through materialization, all unique-state builds, canonical preflight/CTest, and E1–E7 in [run 31340157043](https://github.com/buicongnguyen/cpp-coding-agent-lab/actions/runs/31340157043) |
+| unfamiliar human follows setup without author intervention | EXTERNAL_PENDING | measured in the two-person pilot; a clean CI runner cannot prove instruction clarity or count unplanned hints |
+| Windows, macOS, Linux checkpoint runs | COMPLETE_REPO | release-specific run 31340157043 passed the 10 unique checkpoint states, checkpoint release-gate tests, canonical 16-test suite, and E1–E7 on Ubuntu, Windows, and macOS for implementation commit `5fdfb0e` |
 | pinned live eval subset E1–E5: three trials each | EXTERNAL_PENDING | 15 labeled live results with requested/returned model and routing differences; E6/E7 remain deterministic harness gates |
 | account credit/rate limits, fallback credentials, spend controls | EVENT_TIME | instructor-only account checks; never store credential values |
 | current provider model/tool/error behavior and response format | EVENT_TIME | dated primary-source/API review and re-capture when changed |
