@@ -2,7 +2,7 @@
 
 Build a small, inspectable coding-agent harness in modern C++—from the first model request to a bounded tool loop that can diagnose, edit, build, and test a real project.
 
-This repository is a course package for experienced C++ developers. It combines a mission-based curriculum with hands-on labs, progressive runnable checkpoints, deterministic challenges, executable traces, assessments, a reference implementation, and an interactive learning website inspired by the clear progression and runnable-code philosophy of [Hello Algo](https://github.com/krahets/hello-algo).
+This repository is a finalized deterministic self-paced course package for experienced C++ developers. It combines a mission-based curriculum with hands-on labs, progressive runnable checkpoints, deterministic challenges, executable traces, assessments, a reference implementation, and an interactive learning website inspired by the clear progression and runnable-code philosophy of [Hello Algo](https://github.com/krahets/hello-algo). The planned live-provider and pilot-tested classroom modes were explicitly skipped and are not claimed by this release.
 
 **[Open the interactive course →](https://buicongnguyen.github.io/cpp-coding-agent-lab/)**
 
@@ -16,14 +16,14 @@ Across nine chapters, you will create a C++17 agent harness that can:
 - feed tool results back into a bounded model loop;
 - trace token use, latency, failures, and stop reasons;
 - repair a deliberately broken CMake project in deterministic mode;
-- make a reviewable change to its own source and prove the result still works.
+- isolate and verify a reviewable change to the agent source while keeping model authorship and human approval claims explicit.
 
 The course teaches the mechanism directly. No agent framework is required, and every core exercise can run without an API key.
 
 ## Start here
 
 1. Open the [published course website](https://buicongnguyen.github.io/cpp-coding-agent-lab/).
-2. Choose the one-day workshop or self-paced field-course track in the [learner path](course/LEARNER_PATH.md).
+2. Follow the verified self-paced field-course track in the [learner path](course/LEARNER_PATH.md); the unpiloted workshop plan is retained for future facilitators.
 3. Follow chapters 0–8 in order; each mission includes a lesson, lab, challenge, and evidence checkpoint.
 4. Build and test the reference harness:
 
@@ -60,7 +60,7 @@ For the complete instructor delivery map, see [course/CURRICULUM_INDEX.md](cours
 | 5 | Bounded agent loop | Deterministic repair run |
 | 6 | Context and cost | Annotated execution trace |
 | 7 | Safety and evaluation | Red-team and recovery results |
-| 8 | Self-modification | Reviewed, building agent-generated change |
+| 8 | Self-modification | Isolated, reviewable source change with passing tests |
 
 ## Repository structure
 
@@ -93,11 +93,11 @@ The website reads the course Markdown during its build, so lesson content is mai
 
 The website also embeds the reference executable's deterministic repair trace. Learners can scrub through model requests, tool proposals, correlated results, failures, edits, and final verification without relying on a live provider.
 
-## Deterministic and live modes
+## Deterministic release and retained live extension
 
 Deterministic mode uses scripted model responses and is the default for labs, tests, and CI. It makes the message protocol, dispatcher, safety rules, and loop behavior reproducible.
 
-Live mode is optional. Set `OPENROUTER_API_KEY` and `OPENROUTER_MODEL`, copy the buggy fixture to a disposable workspace, then follow the live-mode instructions in [course/README.md](course/README.md). Never point the workshop agent at an important working tree.
+The source retains an optional OpenRouter adapter and guarded capture workflow for future extension, but live mode is not validated or supported by this finalized release. Re-enabling it requires satisfying the skipped gates in [course/DELIVERY_GATES.md](course/DELIVERY_GATES.md). Never point the agent at an important working tree.
 
 ## Research and maintenance
 

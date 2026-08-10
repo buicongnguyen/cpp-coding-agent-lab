@@ -1,6 +1,6 @@
 # C++ coding-agent workshop package
 
-Choose a delivery route before starting: [one-day workshop or self-paced field course](LEARNER_PATH.md). Both routes use the same chapters and evidence gates; only pacing and facilitation differ.
+The supported release route is the [deterministic self-paced field course](LEARNER_PATH.md). A one-day workshop plan remains visible as an instructor adaptation, but its human pilot and classroom gates were skipped and it is not presented as pilot-tested.
 
 This directory is the executable course package generated from `Course_Chapter_Production_Plan.md`.
 
@@ -61,7 +61,7 @@ Copy `course/fixture/buggy_calculator` to a disposable directory, then run:
 ./course/reference/build/coding_agent --mock --workspace <copy> --scenario full-repair
 ```
 
-## Run live mode
+## Retained live-mode extension (not release-validated)
 
 Set `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, and optionally `COURSE_AGENT_SYSTEM_PROMPT`. Then run:
 
@@ -71,7 +71,7 @@ Set `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, and optionally `COURSE_AGENT_SYSTE
 
 The examples above run from the repository root and show a single-config macOS/Linux path. On Windows PowerShell use `.\course\reference\build\coding_agent.exe` for a single-config generator or `.\course\reference\build\Debug\coding_agent.exe` for a multi-config generator.
 
-Live mode is intentionally optional. Never point the workshop agent at an important working tree.
+Live mode is retained for future maintainers but was explicitly skipped for this release. It has no authenticated run, tested fallback, or provider-eval evidence and must not be presented as supported until the skipped gates are reopened and satisfied. Never point the workshop agent at an important working tree.
 
 Before an instructor enables live mode, use [`assets/chapter_00/MODEL_SELECTION.md`](assets/chapter_00/MODEL_SELECTION.md) for the dated candidate record and [`assets/chapter_00/LIVE_GATE_RUNBOOK.md`](assets/chapter_00/LIVE_GATE_RUNBOOK.md) for the E1–E5 × three-trial evidence workflow. A no-cost dry run validates the complete execution plan:
 

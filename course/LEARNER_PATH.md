@@ -2,7 +2,9 @@
 
 Last verified: 2026-08-09
 
-This course supports two ways through the same nine-chapter build. Both end with the same tested C++ agent; they differ in pacing and how much explanation happens before the lab.
+Release scope: the deterministic self-paced route is fully verified and supported. The one-day workshop route is retained as a facilitation plan only; its two-person pilot, measured activity ratio, and classroom/event-time gates were skipped by owner on 2026-08-10, so it is not claimed as pilot-tested or classroom-ready.
+
+The repository retains two ways through the same nine-chapter build. Both use the same tested deterministic C++ agent; only the self-paced route is release-validated, while the workshop route differs in pacing and facilitation and remains unpiloted.
 
 ## One-day workshop
 

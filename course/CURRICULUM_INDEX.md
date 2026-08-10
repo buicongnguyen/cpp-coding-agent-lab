@@ -4,6 +4,8 @@ Last verified: 2026-08-09
 
 This is the instructor's front door to the executed course. Each row links the manuscript, hands-on lab, instructor runbook, chapter deck outline, assessment, and materialized learner state. The canonical C++ implementation is in `reference/`; `scripts/checkpoints.mjs` generates runnable starters and solutions without maintaining duplicate source trees.
 
+Release scope: the deterministic self-paced sequence is verified. Instructor timings and guides are retained as an unpiloted workshop plan; the owner skipped human, live-provider, and classroom-event validation, so this index is not evidence of a validated 390-minute delivery.
+
 | Chapter | Manuscript | Lab | Instructor | Slides | Assessment | Checkpoint |
 |---|---|---|---|---|---|---|
 | 0. Environment and preflight | [Read](chapters/00_environment.md) | [Lab](labs/00_environment.md) | [Guide](instructor/00_environment.md) | [Slides](slides/00_environment.md) | [Check](assessments/00_environment.md) | [State](checkpoints/00_api_smoke/README.md) |

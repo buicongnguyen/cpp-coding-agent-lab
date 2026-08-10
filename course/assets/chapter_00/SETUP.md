@@ -1,5 +1,7 @@
 # Chapter 0 setup and preflight
 
+Release note: deterministic mode is the supported course path. The live-provider path below is retained as an unvalidated maintainer extension; its authenticated and event-time gates were skipped for this release.
+
 Complete installation before class; classroom time is for verification and the API boundary.
 
 ## Required baseline

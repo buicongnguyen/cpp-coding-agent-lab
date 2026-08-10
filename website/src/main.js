@@ -61,7 +61,7 @@ const state = {
   evidenceRecords: readEvidenceRecords(localStorage.getItem("agent-lab-evidence-v1")),
   expandedReadings: new Set(),
   activeEvidence: null,
-  mode: localStorage.getItem("agent-lab-mode") || "workshop",
+  mode: localStorage.getItem("agent-lab-mode") || "self-paced",
   traceIndex: 0,
   mechanismStage: 0,
   theme:
@@ -192,7 +192,7 @@ function shellTemplate() {
         <div class="sidebar-progress">
           <div class="progress-copy"><span>Attested field log</span><strong data-progress-label>${completedActivityCount()}/36</strong></div>
           <div class="progress-track" aria-hidden="true"><span data-progress-bar style="width:${progressPercent()}%"></span></div>
-          <small>${progressPercent()}% · notes saved only on this device · ${state.mode === "workshop" ? "workshop" : "self-paced"}</small>
+          <small>${progressPercent()}% · notes saved only on this device · ${state.mode === "workshop" ? "workshop plan · unpiloted" : "self-paced · supported"}</small>
         </div>
         <nav id="course-nav"></nav>
         <div class="sidebar-note">
@@ -289,7 +289,7 @@ function renderSidebarProgress() {
   document.querySelector("[data-progress-label]").textContent = `${completed}/36`;
   document.querySelector("[data-progress-bar]").style.width = `${percent}%`;
   document.querySelector(".sidebar-progress small").textContent =
-    `${percent}% · notes saved only on this device · ${state.mode === "workshop" ? "workshop" : "self-paced"}`;
+    `${percent}% · notes saved only on this device · ${state.mode === "workshop" ? "workshop plan · unpiloted" : "self-paced · supported"}`;
 }
 
 const mechanismStages = [
@@ -418,8 +418,8 @@ function homeTemplate() {
           <h1>Build an agent.<br /><em>Interrogate every move.</em></h1>
           <p class="hero-lede">A field course for experienced C++ developers who want to understand the machinery beneath coding assistants: what the model sees, who grants authority, why the loop continues, and what evidence makes a repair real.</p>
           <div class="mode-switch" role="group" aria-label="Choose learning mode">
-            <button type="button" class="${state.mode === "workshop" ? "is-active" : ""}" data-action="select-mode" data-mode="workshop"><strong>One-day workshop</strong><small>390 min · instructor led</small></button>
-            <button type="button" class="${state.mode === "self-paced" ? "is-active" : ""}" data-action="select-mode" data-mode="self-paced"><strong>Self-paced field course</strong><small>11–13 hr · full depth</small></button>
+            <button type="button" class="${state.mode === "workshop" ? "is-active" : ""}" data-action="select-mode" data-mode="workshop"><strong>One-day workshop plan</strong><small>390 min design · unpiloted</small></button>
+            <button type="button" class="${state.mode === "self-paced" ? "is-active" : ""}" data-action="select-mode" data-mode="self-paced"><strong>Self-paced field course</strong><small>11–13 hr · verified release</small></button>
           </div>
           <div class="hero-actions">
             <a class="button button-primary" href="${chapterHref(next.chapterId, next.kind)}">${completedActivityCount() ? "Continue the mission" : "Enter chapter 0"} <span>→</span></a>
@@ -967,7 +967,7 @@ document.addEventListener("click", async (event) => {
     state.mode = trigger.dataset.mode === "self-paced" ? "self-paced" : "workshop";
     localStorage.setItem("agent-lab-mode", state.mode);
     renderRoute();
-    showToast(state.mode === "workshop" ? "One-day workshop selected" : "Self-paced field course selected");
+    showToast(state.mode === "workshop" ? "Unpiloted workshop plan selected" : "Verified self-paced course selected");
   }
 
   if (action === "set-mechanism-stage") {

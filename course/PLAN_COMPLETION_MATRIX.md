@@ -13,13 +13,14 @@ This ledger separates files that exist from evidence that an execution or extern
 - `CONTENT_GAP`: a stated repository deliverable is not yet at the plan target.
 - `EXTERNAL_PENDING`: requires current credentials, provider/account/network/platform, hardware, or independent humans.
 - `EVENT_TIME`: intentionally repeated shortly before each delivery.
+- `SKIPPED_BY_OWNER`: deliberately not performed and excluded from the finalized deterministic self-paced release; it must never be represented as passing evidence.
 
 ## Course design and package standard
 
 | Plan requirement | Status | Evidence / exact remaining proof |
 |---|---|---|
 | one intensive day, 390 instructional minutes | COMPLETE_REPO | plan schedule and nine instructor guides plus `WRAP_UP.md` |
-| approximately 65–70% active learning | EXTERNAL_PENDING | activity is designed into labs/checkpoints; actual ratio must be timed in the two-person pilot (`PILOT.md`) |
+| approximately 65–70% active learning | SKIPPED_BY_OWNER | designed target retained, but actual ratio was not measured because the two-person pilot was skipped; no measured-activity claim is made |
 | experienced C++ audience; C++17/CMake/JSON prework | COMPLETE_REPO | plan audience and `assets/chapter_00/SETUP.md` |
 | deterministic core and optional live mode behind one model-client interface | COMPLETE_REPO | `reference/include/course_agent/model_client.hpp`, scripted and OpenRouter implementations |
 | raw HTTP/JSON teaching boundary; streaming deferred | COMPLETE_REPO | Chapters 0/3, provider adapter, chapter wire fixtures |
@@ -50,7 +51,7 @@ This ledger separates files that exist from evidence that an execution or extern
 | successful deterministic compile/test repair trace | COMPLETE_REPO | `demos/full_repair_trace.jsonl` |
 | at least three distinct deterministic failure traces | COMPLETE_REPO | executable captures `repeated_read_trace.jsonl`, `empty_final_trace.jsonl`; authored boundary fixtures `path_escape_failure_trace.jsonl`, `malformed_arguments_failure_trace.jsonl`, `false_success_failure_trace.jsonl`; provenance is explicit |
 | deterministic `list_files` checkpoint fallback | COMPLETE_REPO | `demos/capstone_trace.jsonl` records automated starter materialization, absence check, checked-in instructor answer-patch hash/application, isolated configure/build/full CTest, and sanitized paths; it records neither model-generated code nor human review |
-| live example capture | EXTERNAL_PENDING | `demos/live_provider_trace_template.jsonl` is only a redacted schema; actual dated provider run required |
+| live example capture | SKIPPED_BY_OWNER | live-provider validation is excluded from this release; `demos/live_provider_trace_template.jsonl` remains visibly pending and is not evidence |
 | reproducible live E1–E5 × three-trial capture workflow | COMPLETE_REPO | `scripts/run-live-gates.ps1` produces exactly 15 isolated, labeled, unreviewed trials; dry-run structure is verifier-tested and `assets/chapter_00/LIVE_GATE_RUNBOOK.md` requires spend controls plus second-person promotion review |
 
 ## Chapter-specific production assets
@@ -61,10 +62,10 @@ This ledger separates files that exist from evidence that an execution or extern
 | 0 | five-minute deterministic preflight and mock mode | COMPLETE_REPO | clean final build printed compiler, CMake, C++ standard, cwd, mode/key state, tool count, model, finish reason, usage, elapsed time, and deterministic response |
 | 0 | sanitized response and HTTP-status troubleshooting | COMPLETE_REPO | `assets/chapter_00/sanitized_response.json`, `TROUBLESHOOTING.md` |
 | 0 | dated primary/fallback tool-capable model candidates | COMPLETE_REPO | `assets/chapter_00/model_selection_2026-08-10.json` retains public Models API and single-model endpoint evidence for `openai/gpt-5.4-mini` and `google/gemini-2.5-flash`; this proves advertised catalog capability, not authenticated success |
-| 0 | authenticated primary/fallback preflight | EXTERNAL_PENDING | no key exists in the local environment or GitHub repository secrets; both candidates remain explicitly untested until an instructor account runs and reviews them |
+| 0 | authenticated primary/fallback preflight | SKIPPED_BY_OWNER | no key exists locally or in repository secrets; live mode is excluded from the finalized release and both candidates remain explicitly untested |
 | 1 | secret-file/stateless history experiment deliverable | COMPLETE_REPO | `assets/chapter_01/EXPERIMENT_REPORT.md`, Chapter 1 demo fixture |
 | 2 | worksheet, four prompts, fixed cases | COMPLETE_REPO | `assets/chapter_02/` |
-| 2 | instructor examples from the actual pinned model | EXTERNAL_PENDING | deterministic examples are labeled rehearsal data; three+ live trials must record model/settings/date |
+| 2 | instructor examples from the actual pinned model | SKIPPED_BY_OWNER | live examples were skipped; deterministic examples remain explicitly labeled rehearsal data |
 | 3 | raw tool-call response without execution | COMPLETE_REPO | `demos/chapter_fixtures/03_tool_definition.json` |
 | 4 | Windows/POSIX path cases, command policy, fake calls, transcript worksheet | COMPLETE_REPO | `assets/chapter_04/` |
 | 4 | direct dispatcher enforcement of every path/size/action case | COMPLETE_REPO | final named tests passed relative/absolute/symlink escape, missing/binary/size/write approval, action, environment, and no-side-effect assertions |
@@ -74,7 +75,7 @@ This ledger separates files that exist from evidence that an execution or extern
 | 7 | E1–E7 run and a before/after learner comparison path | COMPLETE_REPO | executable cases, `evals/deterministic_baseline_report.json`, and the red-team worksheet provide the stable baseline; each learner records one controlled change rather than the course fabricating a universal “improvement” |
 | 8 | isolation contract/checklist, recovery runbook, diff/review/retrospective | COMPLETE_REPO | `assets/chapter_08/` |
 | 8 | isolated deterministic checkpoint fallback reaches at least Level 3 | COMPLETE_REPO | `demos/capstone_trace.jsonl` records automated application of the checked-in instructor answer patch through a passing full suite (Level 5); this proves the prepared fallback, not agent self-modification or a reviewer decision |
-| 8 | pinned live-model agent-generated capstone example | EXTERNAL_PENDING | requires credentials, selected current model, clean baseline, human diff approval, and redacted capture; deterministic course completion does not depend on it |
+| 8 | pinned live-model agent-generated capstone example | SKIPPED_BY_OWNER | live self-modification and human review were skipped; the deterministic answer-patch fallback remains the only claimed capstone execution |
 
 ## Wrap-up and learner assessment
 
@@ -89,17 +90,17 @@ This ledger separates files that exist from evidence that an execution or extern
 
 | Plan requirement | Status | Evidence / exact remaining proof |
 |---|---|---|
-| timed pilot with two experienced C++ developers unfamiliar with repository | EXTERNAL_PENDING | `PILOT.md` is explicitly unexecuted; requires two real participants and issue closure |
+| timed pilot with two experienced C++ developers unfamiliar with repository | SKIPPED_BY_OWNER | `PILOT.md` records the owner decision and remains explicitly unexecuted; no pilot-tested claim is permitted |
 | automated clean-checkout setup | COMPLETE_REPO | fresh GitHub-hosted runners followed the repository workflow from checkout through materialization, all unique-state builds, canonical preflight/CTest, and E1–E7 in [run 31340157043](https://github.com/buicongnguyen/cpp-coding-agent-lab/actions/runs/31340157043) |
-| unfamiliar human follows setup without author intervention | EXTERNAL_PENDING | measured in the two-person pilot; a clean CI runner cannot prove instruction clarity or count unplanned hints |
+| unfamiliar human follows setup without author intervention | SKIPPED_BY_OWNER | human usability evidence was skipped; automated clean-runner evidence is retained without being misrepresented as a learner pilot |
 | Windows, macOS, Linux checkpoint runs | COMPLETE_REPO | release-specific run 31340157043 passed the 10 unique checkpoint states, checkpoint release-gate tests, canonical 16-test suite, and E1–E7 on Ubuntu, Windows, and macOS for implementation commit `5fdfb0e` |
-| pinned live eval subset E1–E5: three trials each | EXTERNAL_PENDING | 15 labeled live results with requested/returned model and routing differences; E6/E7 remain deterministic harness gates |
-| account credit/rate limits, fallback credentials, spend controls | EVENT_TIME | instructor-only account checks; never store credential values |
-| current provider model/tool/error behavior and response format | EVENT_TIME | dated primary-source/API review and re-capture when changed |
-| current conversation-state and OWASP guidance | EVENT_TIME | dated source review with change/no-change decision |
-| classroom network/provider status/projector readability | EVENT_TIME | immediately-before-class checks in `DELIVERY_GATES.md` |
-| local offline archives/reset fixture copies | EVENT_TIME | instructor inventory/checksums and reset confirmation |
+| pinned live eval subset E1–E5: three trials each | SKIPPED_BY_OWNER | the fail-closed 15-run harness is retained for future reopening, but no live trial or passing result is claimed |
+| account credit/rate limits, fallback credentials, spend controls | SKIPPED_BY_OWNER | live-provider delivery is disabled for this release; no account readiness claim is made |
+| current provider model/tool/error behavior and response format | SKIPPED_BY_OWNER | dated public research is retained, but authenticated/event-time provider verification is outside the finalized scope |
+| current conversation-state and OWASP event-time recheck | SKIPPED_BY_OWNER | the dated research sweep remains; the throttled OWASP retry and future event-time review were waived |
+| classroom network/provider status/projector readability | SKIPPED_BY_OWNER | no classroom event is part of the finalized release, so no classroom-ready claim is made |
+| local offline archives/reset fixture copies | SKIPPED_BY_OWNER | event-specific instructor inventory was waived; repository checkpoints remain downloadable from GitHub |
 
 ## Honest completion rule
 
-The repository-authoring phase is complete only when all `CONTENT_GAP` rows are closed and all `REPO_VERIFY_PENDING` rows have passing, retained verifier output. The course can be released as a deterministic self-paced package while `EXTERNAL_PENDING` live-mode gates are clearly disabled, but it cannot claim “pilot-tested,” “live-verified,” or “ready for this classroom event” until the corresponding external evidence exists. See `DELIVERY_GATES.md` for go/no-go decisions.
+The owner finalized the scope on 2026-08-10 as the deterministic self-paced package. All repository-authorable requirements are complete and verified; externally blocked live-provider, human-pilot, and event-specific gates are explicitly `SKIPPED_BY_OWNER`. Skipped work is not completion evidence: this release must not claim “pilot-tested,” “live-verified,” measured 65–70% activity, or “ready for this classroom event.” Reopening any skipped mode requires restoring its gates before making those claims. See `DELIVERY_GATES.md`.

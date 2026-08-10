@@ -462,16 +462,35 @@ if ($null -ne $liveGateRunnerPath) {
     }
 }
 
-# Wrap-up, pilot, delivery, and completion ledgers are required, while external evidence remains honest.
+# Wrap-up, pilot, delivery, and completion ledgers are required, while skipped evidence remains honest.
 $governanceFiles = @{
     'WRAP_UP.md' = @("Last reviewed: $verifiedDate", '## Ten-minute exit check', '## Final 20-point rubric', '## Minimum course-completion gates')
-    'PILOT.md' = @("Repository review date: $auditDate", 'Status: **UNEXECUTED', 'two experienced C++ developers', '## Timing and activity log', 'Pilot executed: **no**')
-    'DELIVERY_GATES.md' = @("Last reviewed: $auditDate", '## Repository gates', 'EXTERNAL_PENDING', 'EVENT_TIME', '## Go/no-go rule')
-    'PLAN_COMPLETION_MATRIX.md' = @("Audit date: $auditDate", 'Authoritative plan:', '## Course design and package standard', '## Honest completion rule')
+    'PILOT.md' = @("Repository review date: $auditDate", 'Status: **SKIPPED_BY_OWNER', 'two experienced C++ developers', '## Timing and activity log', 'Pilot executed: **no**', 'no pilot-tested or classroom-ready claim')
+    'DELIVERY_GATES.md' = @("Last reviewed: $auditDate", '## Repository gates', 'SKIPPED_BY_OWNER', '## Go/no-go rule', 'deterministic self-paced course only')
+    'PLAN_COMPLETION_MATRIX.md' = @("Audit date: $auditDate", 'Authoritative plan:', '## Course design and package standard', '## Honest completion rule', 'SKIPPED_BY_OWNER')
 }
 foreach ($entry in $governanceFiles.GetEnumerator()) {
     $content = Read-RequiredText $entry.Key 300
     Require-Markers "course/$($entry.Key)" $content $entry.Value
+}
+
+foreach ($ledgerName in @('DELIVERY_GATES.md', 'PLAN_COMPLETION_MATRIX.md')) {
+    $ledger = Read-RequiredText $ledgerName 300
+    if ($null -ne $ledger -and $ledger -match '(?m)^\|.*\|\s*(EXTERNAL_PENDING|EVENT_TIME)\s*\|') {
+        Add-Failure "course/$ledgerName still contains an active external/event-time table row after the owner skip decision."
+    }
+}
+
+$productionPlanPath = Join-Path $repositoryRoot 'Course_Chapter_Production_Plan.md'
+if (-not (Test-Path -LiteralPath $productionPlanPath -PathType Leaf)) {
+    Add-Failure 'Missing Course_Chapter_Production_Plan.md.'
+} else {
+    $productionPlan = Get-Content -LiteralPath $productionPlanPath -Raw
+    Require-Markers 'Course_Chapter_Production_Plan.md' $productionPlan @(
+        '## 9. Final release-scope decision',
+        'fully verified deterministic self-paced course',
+        '“Skipped” never means “passed.”'
+    )
 }
 
 # Evaluation cases are executable contracts, not a list of labels.

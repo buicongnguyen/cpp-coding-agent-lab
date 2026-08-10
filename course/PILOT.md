@@ -1,9 +1,9 @@
 # Timed pilot protocol and report
 
-Status: **UNEXECUTED — protocol/template only**
+Status: **SKIPPED_BY_OWNER — protocol/template retained; no pilot claimed**
 Repository review date: 2026-08-10
 
-This file does not claim a human pilot occurred. The plan requires two experienced C++ developers unfamiliar with the codebase. Record actual names or participant IDs, consent, timestamps, observations, and follow-up before changing status.
+On 2026-08-10 the course owner explicitly chose to skip externally blocked work so the deterministic self-paced release could be finalized. This file does not claim a human pilot occurred. If the instructor-led route is reopened, the plan requires two experienced C++ developers unfamiliar with the codebase. Record actual names or participant IDs, consent, timestamps, observations, and follow-up before changing status.
 
 ## Participants and independence check
 
@@ -68,5 +68,7 @@ P0/P1 issues closed: **not assessed**
 390-minute schedule demonstrated: **not assessed**
 65–70% activity measured: **not assessed**
 Two participants completed exit/rubric: **not assessed**
+
+Release decision: **pilot gate skipped; no pilot-tested or classroom-ready claim is permitted**
 
 Author and independent reviewer signatures/dates: pending.

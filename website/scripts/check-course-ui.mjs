@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import {
   ACTIVITY_KINDS,
   adjacentActivity,
@@ -8,6 +9,12 @@ import {
 import { courseData } from "../src/generated/course-data.js";
 
 const chapters = [{ id: 0 }, { id: 1 }];
+
+const mainSource = await readFile(new URL("../src/main.js", import.meta.url), "utf8");
+assert.match(mainSource, /localStorage\.getItem\("agent-lab-mode"\) \|\| "self-paced"/);
+assert.match(mainSource, /One-day workshop plan/);
+assert.match(mainSource, /390 min design · unpiloted/);
+assert.match(mainSource, /11–13 hr · verified release/);
 
 assert.deepEqual(adjacentActivity(chapters, 0, "lesson", 1), {
   chapterId: 0,

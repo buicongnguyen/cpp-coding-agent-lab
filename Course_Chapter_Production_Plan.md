@@ -55,7 +55,7 @@ By the end of the course, students can:
 | 5 | The agentic loop | 60 minutes | Bounded working agent loop |
 | 6 | Turns, context, tokens, and cost | 30 minutes | Annotated message-history trace |
 | 7 | Safety, reliability, observability, and evals | 30 minutes | Red-team and recovery results |
-| 8 | Self-modification capstone | 50 minutes | Reviewed, building agent-generated change |
+| 8 | Self-modification capstone | 50 minutes | Isolated, reviewable source change with passing tests |
 | Wrap-up | Demonstration and exit check | 10 minutes | Final rubric and reflection |
 
 Total instructional time is 390 minutes, excluding lunch and breaks. Approximately 65–70% should be student activity, debugging, discussion, or demonstration rather than lecture.
@@ -74,7 +74,7 @@ Total instructional time is 390 minutes, excluding lunch and breaks. Approximate
 | 7 | 2,000 words | 8 | `07_safe_agent` | Prompt-only boundary versus enforced policy |
 | 8 | 2,000 words | 6 | `08_capstone_solution` | Isolated edit, diff review, build, and test |
 
-These manuscript numbers are minimum planning baselines, not hard maximums. The repository serves both a one-day workshop and a self-paced field course, so the full manuscripts may exceed the baseline when the added material clarifies a boundary or supports independent study. The website's workshop mode exposes the required briefing sections and keeps optional depth collapsed; the self-paced mode exposes the complete manuscript. Slide counts remain exact because the deck is the time-boxed facilitator surface.
+These manuscript numbers are minimum planning baselines, not hard maximums. The finalized release serves the self-paced field course; the one-day workshop remains an unpiloted facilitation plan. Full manuscripts may exceed the baseline when added material clarifies a boundary or supports independent study. The website's workshop-plan mode exposes briefing sections and keeps optional depth collapsed; the supported self-paced mode exposes the complete manuscript. Slide counts remain exact because the deck remains the planned facilitator surface.
 
 ## 2. Standard production package for every chapter
 
@@ -1341,3 +1341,16 @@ Generate the material in this order rather than chapter-number order:
 - Keep the core agent sequential; parallel calls, streaming, MCP, retrieval, and multi-agent orchestration belong in follow-up material.
 - Never describe the workshop agent as production-ready.
 - End every chapter with an artifact that becomes input to the next chapter.
+
+## 9. Final release-scope decision
+
+On 2026-08-10 the course owner directed the production process to skip requirements that remained blocked on external credentials, independent human participants, or a specific classroom event. The finalized release is therefore the fully verified deterministic self-paced course.
+
+The following planned work is retained as documentation but excluded from the release acceptance scope:
+
+- authenticated OpenRouter preflight, live E1–E5 trials, live example capture, and live-model capstone;
+- the two-person unfamiliar-developer pilot, measured 65–70% activity ratio, and validated 390-minute workshop claim;
+- venue-specific network, provider, projector, offline-inventory, credential, and spending checks;
+- the throttled OWASP event-time retry.
+
+“Skipped” never means “passed.” The repository may claim the deterministic package, checkpoint chain, cross-platform CI, evaluation suite, website, and deployment evidence that were actually produced. It may not claim live verification, pilot testing, measured activity, or classroom readiness. Any future owner who re-enables a skipped mode must reactivate and satisfy the corresponding gates in `course/DELIVERY_GATES.md`.
